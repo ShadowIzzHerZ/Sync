@@ -33,8 +33,8 @@ export function openReportModal(startLatLng) {
                 <div class="photo-drop" id="photo-drop">
                   <input id="photo-input" name="photo" type="file" accept="image/*" capture="environment" required />
                   <div class="photo-drop__placeholder" id="photo-placeholder">
-                    <span class="photo-drop__icon" aria-hidden="true">📷</span>
-                    <span>Click to add a photo, or take one now</span>
+                    <span class="photo-drop__label">Add a photo</span>
+                    <span>Click to upload, or take one now</span>
                   </div>
                   <img id="photo-preview" alt="Selected issue photo" hidden />
                 </div>

@@ -6,7 +6,7 @@ import { showToast } from "../toast.js";
 import { timeAgo, absoluteTimestamp, startRelativeTimeTicker } from "../timeAgo.js";
 import { animateListIn, animateMarkerDrop } from "../animations.js";
 import { escapeHtml } from "./shell.js";
-import { CATEGORY_ICONS, STATUS_LABELS } from "../config.js";
+import { STATUS_LABELS } from "../config.js";
 
 let leafletMod = null;
 let map = null;
@@ -115,7 +115,6 @@ function renderList(listEl, reports) {
   if (!reports.length) {
     listEl.innerHTML = `
       <div class="empty-state">
-        <span class="empty-state__icon" aria-hidden="true">🗺️</span>
         <p>No reports match these filters yet.</p>
       </div>
     `;
@@ -129,7 +128,7 @@ function renderList(listEl, reports) {
         <img class="report-card__photo" src="${r.photo_url}" alt="" loading="lazy" />
         <div class="report-card__body">
           <div class="report-card__top">
-            <span class="category-chip">${CATEGORY_ICONS[r.category?.slug] || "📍"} ${escapeHtml(r.category?.name || "Uncategorized")}</span>
+            <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
             <span class="badge badge--${r.status}">${STATUS_LABELS[r.status]}</span>
           </div>
           ${renderSeverityAndCounts(r)}
@@ -322,7 +321,7 @@ function renderMarkers(reports) {
   reports.forEach((r) => {
     const icon = L.divIcon({
       className: "",
-      html: `<div class="map-pin map-pin--${r.status} map-pin--severity-${r.severity_label ? r.severity_label.toLowerCase() : "none"}">${CATEGORY_ICONS[r.category?.slug] || "📍"}</div>`,
+      html: `<div class="map-pin map-pin--${r.status} map-pin--severity-${r.severity_label ? r.severity_label.toLowerCase() : "none"}"></div>`,
       iconSize: [34, 34],
       iconAnchor: [17, 32],
     });
@@ -347,7 +346,7 @@ function renderPopup(r) {
     <div class="map-popup">
       <img src="${r.photo_url}" alt="" />
       <div class="map-popup__body">
-        <span class="category-chip">${CATEGORY_ICONS[r.category?.slug] || "📍"} ${escapeHtml(r.category?.name || "Uncategorized")}</span>
+        <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
         <span class="badge badge--${r.status}">${STATUS_LABELS[r.status]}</span>
         ${renderSeverityAndCounts(r)}
         <p>${escapeHtml(r.description)}</p>
