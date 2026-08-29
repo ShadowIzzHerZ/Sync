@@ -1,54 +1,58 @@
 /* ===========================================================================
    Zen — design tokens & component styles.
-   A deliberately restrained, municipal/signage-inspired palette rather than
-   a generic gradient-and-glass "AI app" look: flat surfaces, 1px borders,
-   real hierarchy through type and spacing, motion reserved for meaningful
-   transitions (handled in js/animations.js via Anime.js).
+   Apple HIG-influenced: the system font stack (no embedded webfont), a
+   neutral light-gray canvas with white elevated surfaces, soft shadow-based
+   elevation instead of hairline borders on cards, continuous-feeling large
+   corner radii, and a single custom accent carried consistently through
+   every actionable element — a brand color used the way a well-made
+   third-party Apple app uses one, not a second competing "brand blue."
+   Motion goes through js/animations.js (Anime.js) and honors
+   prefers-reduced-motion there.
    =========================================================================== */
 
 :root {
-  /* Warm paper neutrals instead of cool SaaS gray — closer to newsprint
-     or a municipal notice than a dashboard. */
-  --color-ink: #201c16;
-  --color-ink-soft: #5b5348;
-  --color-ink-faint: #766e5e;
+  --color-ink: #1d1d1f;
+  --color-ink-soft: #55555a;
+  --color-ink-faint: #6e6e73;
 
-  --color-bg: #f6f3ec;
-  --color-surface: #fffdf9;
-  --color-surface-sunken: #ede7d9;
-  --color-border: #ded5c0;
-  --color-border-strong: #c3b79c;
+  /* #f5f5f7 is the neutral light gray Apple's own site and apps use for
+     page canvas — cards sit on it as white, elevated surfaces. */
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #ececee;
+  --color-border: #e2e2e5;
+  --color-border-strong: #c8c8cd;
 
-  /* One accent, used consistently for anything actionable — no second
-     "brand blue" competing with it. Rust/clay reads as civic signage,
-     not startup gradient. */
-  --color-primary: #24211a;
-  --color-primary-strong: #100e0a;
-  --color-primary-soft: #e9e3d3;
+  --color-primary: #1d1d1f;
+  --color-primary-strong: #000000;
+  --color-primary-soft: #e9e5df;
 
   --color-accent: #a8451f;
   --color-accent-strong: #832f11;
   --color-accent-soft: #f2ded0;
 
-  --color-success: #3e6b3a;
-  --color-success-soft: #e4ecdd;
+  --color-success: #2f7a3d;
+  --color-success-soft: #e3f1e4;
   --color-warning: #92650f;
   --color-warning-soft: #f2e7cd;
-  --color-danger: #a3341f;
-  --color-danger-soft: #f2ddd3;
-  --color-info: #3c5a73;
-  --color-info-soft: #e2e8ed;
+  --color-danger: #c0341f;
+  --color-danger-soft: #fae1dc;
+  --color-info: #2f66a8;
+  --color-info-soft: #e5eefb;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
 
-  --shadow-sm: 0 1px 2px rgba(32, 28, 22, 0.07);
-  --shadow-md: 0 6px 20px rgba(32, 28, 22, 0.1);
-  --shadow-lg: 0 16px 40px rgba(32, 28, 22, 0.18);
+  /* Soft, low-opacity, wide-spread shadows read as native elevation;
+     Apple's cards lean on shadow rather than a visible outline. */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.16);
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-serif: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 
   color-scheme: light;
 }
@@ -62,6 +66,21 @@
    render even while hidden. Belt-and-braces fix, not just a one-off patch. */
 [hidden] {
   display: none !important;
+}
+
+/* Covers plain CSS transitions/animations (button press, card hover lift,
+   etc.) — the equivalent check for the Anime.js-driven motion lives in
+   js/animations.js. Together they mean Reduce Motion turns off animation
+   everywhere in the app, not just in the parts that happen to use JS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html,
@@ -83,16 +102,14 @@ body {
 
 h1,
 h2 {
-  font-family: var(--font-serif);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.022em;
   margin: 0;
   color: var(--color-ink);
 }
 
 h3 {
-  font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0;
   color: var(--color-ink);
@@ -131,7 +148,11 @@ textarea {
   gap: 24px;
   padding: 0 24px;
   height: 64px;
-  background: var(--color-surface);
+  /* Frosted, translucent toolbar — content scrolls underneath it rather
+     than disappearing behind a flat bar, the way a native nav bar works. */
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
@@ -154,11 +175,10 @@ textarea {
   justify-content: center;
   width: 26px;
   height: 26px;
-  border-radius: var(--radius-sm);
+  border-radius: 7px;
   background: var(--color-accent);
   color: #fff;
-  font-family: var(--font-serif);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
 }
 
@@ -465,9 +485,15 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 32px;
+  padding: 16px 32px;
   max-width: 1100px;
   margin: 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--color-bg) 75%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .landing__nav-actions {
@@ -476,30 +502,31 @@ textarea {
 }
 
 .landing__hero {
-  max-width: 620px;
+  max-width: 780px;
   margin: 0 auto;
-  padding: 76px 24px 60px;
-  border-bottom: 1px solid var(--color-border);
+  padding: 96px 24px 72px;
+  text-align: center;
 }
 
 .landing__title {
-  font-size: 2.5rem;
-  line-height: 1.18;
-  margin-bottom: 18px;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  margin-bottom: 20px;
 }
 
 .landing__subtitle {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   color: var(--color-ink-soft);
-  line-height: 1.6;
-  margin-bottom: 28px;
+  line-height: 1.55;
+  margin: 0 auto 32px;
   max-width: 46ch;
 }
 
 .landing__cta-row {
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -509,21 +536,20 @@ textarea {
 
 .landing__cta-secondary {
   order: 2;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-ink-soft);
-  border-bottom: 1px solid var(--color-border-strong);
-  padding-bottom: 1px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-accent);
 }
 
 .landing__cta-secondary:hover {
-  color: var(--color-ink);
-  border-color: var(--color-ink-soft);
+  color: var(--color-accent-strong);
+  text-decoration: underline;
 }
 
 .btn--large {
-  padding: 13px 24px;
-  font-size: 0.95rem;
+  padding: 13px 26px;
+  font-size: 0.98rem;
+  border-radius: 980px; /* full pill — the shape Apple's own marketing CTAs use */
 }
 
 .landing__section {
@@ -546,24 +572,22 @@ textarea {
 }
 
 .landing__section-title {
-  font-size: 1.35rem;
-  margin-bottom: 28px;
+  font-size: 1.75rem;
+  text-align: center;
+  margin-bottom: 36px;
 }
 
 .landing__features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1px;
-  background: var(--color-border);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  gap: 16px;
 }
 
 .feature-card {
   background: var(--color-surface);
-  padding: 22px 20px;
-  border-top: 2px solid var(--color-accent);
+  padding: 24px 22px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .feature-card h3 {
@@ -585,6 +609,7 @@ textarea {
 
 .step-card {
   padding: 8px;
+  text-align: center;
 }
 
 .step-card__number {
@@ -594,10 +619,9 @@ textarea {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1.5px solid var(--color-ink);
+  background: var(--color-primary-soft);
   color: var(--color-ink);
-  font-family: var(--font-serif);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 14px;
 }
 
@@ -615,13 +639,14 @@ textarea {
 .landing__final-cta {
   max-width: 620px;
   margin: 0 auto;
-  padding: 60px 24px 80px;
+  padding: 64px 24px 96px;
+  text-align: center;
 }
 
 .landing__final-cta h2 {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  max-width: 30ch;
+  font-size: 2rem;
+  margin: 0 auto 24px;
+  max-width: 24ch;
 }
 
 .landing__footer {
@@ -653,9 +678,7 @@ textarea {
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
-  background:
-    linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
-    repeating-linear-gradient(45deg, var(--color-surface-sunken) 0 1px, transparent 1px 14px);
+  background: var(--color-bg);
 }
 
 .auth-card {
@@ -681,24 +704,26 @@ textarea {
 
 .auth-tabs {
   display: flex;
-  border: 1px solid var(--color-border);
+  gap: 2px;
+  padding: 3px;
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  background: var(--color-surface-sunken);
   margin-bottom: 24px;
 }
 
 .auth-tab {
   flex: 1;
   text-align: center;
-  padding: 9px 0;
+  padding: 8px 0;
+  border-radius: 6px;
   font-weight: 700;
   font-size: 0.85rem;
   color: var(--color-ink-faint);
-  background: var(--color-surface-sunken);
 }
 
 .auth-tab--active {
   background: var(--color-primary);
+  box-shadow: var(--shadow-sm);
   color: #fff;
 }
 
@@ -764,15 +789,16 @@ textarea {
   display: flex;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .report-card:hover {
-  border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .report-card__photo {
@@ -938,7 +964,9 @@ textarea {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(16, 25, 43, 0.55);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1255,8 +1283,8 @@ textarea {
 
 .card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   padding: 24px;
 }
 
