@@ -1797,3 +1797,78 @@ textarea {
     flex-direction: column;
   }
 }
+
+/* ---------- Admin tabs (Reports / Feedback) ---------- */
+
+.admin-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  width: fit-content;
+  margin-bottom: 20px;
+}
+
+.admin-tab {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-tab--active {
+  background: #1d2430;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Admin feedback list ---------- */
+
+.admin-feedback-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-feedback-row {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+}
+
+.admin-feedback-row__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.admin-feedback-row__who {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--color-ink);
+}
+
+.admin-feedback-row__stars {
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+.admin-feedback-row__time {
+  margin-left: auto;
+  font-size: 0.76rem;
+  color: var(--color-ink-faint);
+}
+
+.admin-feedback-row__message {
+  font-size: 0.9rem;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+}

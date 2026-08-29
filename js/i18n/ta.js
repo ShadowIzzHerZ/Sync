@@ -193,4 +193,10 @@ export default {
   "admin.dashboard.stats.open": "திறந்துள்ளது",
   "admin.dashboard.stats.inProgress": "செயலில் உள்ளது",
   "admin.dashboard.stats.resolved": "தீர்க்கப்பட்டது",
+
+  "admin.tabs.reports": "புகார்கள்",
+  "admin.tabs.feedback": "கருத்து",
+  "admin.feedback.loadFailed": "கருத்துகளை ஏற்ற முடியவில்லை.",
+  "admin.feedback.empty": "இதுவரை கருத்துகள் இல்லை.",
+  "admin.feedback.anonymous": "அநாமதேயர்",
 };

@@ -14,6 +14,7 @@ import bn from "./i18n/bn.js";
 import ta from "./i18n/ta.js";
 import te from "./i18n/te.js";
 import mr from "./i18n/mr.js";
+import pa from "./i18n/pa.js";
 
 export const LANGUAGES = [
   { code: "en", label: "English" },
@@ -22,9 +23,10 @@ export const LANGUAGES = [
   { code: "ta", label: "தமிழ்" },
   { code: "te", label: "తెలుగు" },
   { code: "mr", label: "मराठी" },
+  { code: "pa", label: "ਪੰਜਾਬੀ" },
 ];
 
-const DICTS = { en, hi, bn, ta, te, mr };
+const DICTS = { en, hi, bn, ta, te, mr, pa };
 const STORAGE_KEY = "zen-language";
 
 function detectDefault() {

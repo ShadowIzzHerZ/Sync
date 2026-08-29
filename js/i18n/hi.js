@@ -193,4 +193,10 @@ export default {
   "admin.dashboard.stats.open": "खुली",
   "admin.dashboard.stats.inProgress": "प्रगति पर",
   "admin.dashboard.stats.resolved": "सुलझी हुई",
+
+  "admin.tabs.reports": "रिपोर्ट",
+  "admin.tabs.feedback": "प्रतिक्रिया",
+  "admin.feedback.loadFailed": "प्रतिक्रिया लोड नहीं हो सकी।",
+  "admin.feedback.empty": "अभी तक कोई प्रतिक्रिया नहीं है।",
+  "admin.feedback.anonymous": "अज्ञात",
 };

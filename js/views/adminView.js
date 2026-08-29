@@ -1,5 +1,5 @@
 import { state, setState } from "../state.js";
-import { fetchReports, updateReportStatus, updateReportEta } from "../api.js";
+import { fetchReports, updateReportStatus, updateReportEta, fetchFeedback } from "../api.js";
 import { reverseGeocodeCoarse } from "../geocode.js";
 import { showToast } from "../toast.js";
 import { signOut } from "../auth.js";
@@ -54,24 +54,37 @@ export function renderAdminDashboard() {
         <h1>${t("admin.dashboard.title")}</h1>
         <p class="page__subtitle">${t("admin.dashboard.subtitle")}</p>
       </div>
-      <div class="admin-stats" id="admin-stats"></div>
-      <div class="filter-row">
-        <select id="admin-filter-status">
-          <option value="all">${t("map.filter.allStatuses")}</option>
-          ${STATUSES.map((s) => `<option value="${s}">${t(`status.${s}`)}</option>`).join("")}
-        </select>
-        <select id="admin-filter-category">
-          <option value="all">${t("map.filter.allCategories")}</option>
-          ${state.categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}
-        </select>
+
+      <div class="admin-tabs" role="tablist">
+        <button type="button" class="admin-tab admin-tab--active" id="admin-tab-reports" role="tab" aria-selected="true">${t("admin.tabs.reports")}</button>
+        <button type="button" class="admin-tab" id="admin-tab-feedback" role="tab" aria-selected="false">${t("admin.tabs.feedback")}</button>
       </div>
-      <div class="admin-report-grid" id="admin-report-grid"></div>
+
+      <section id="admin-panel-reports">
+        <div class="admin-stats" id="admin-stats"></div>
+        <div class="filter-row">
+          <select id="admin-filter-status">
+            <option value="all">${t("map.filter.allStatuses")}</option>
+            ${STATUSES.map((s) => `<option value="${s}">${t(`status.${s}`)}</option>`).join("")}
+          </select>
+          <select id="admin-filter-category">
+            <option value="all">${t("map.filter.allCategories")}</option>
+            ${state.categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="admin-report-grid" id="admin-report-grid"></div>
+      </section>
+
+      <section id="admin-panel-feedback" hidden>
+        <div class="admin-feedback-grid" id="admin-feedback-grid"></div>
+      </section>
     </div>
   `;
 }
 
 export async function wireAdminDashboard(root) {
   startRelativeTimeTicker();
+  wireTabs(root);
 
   const grid = root.querySelector("#admin-report-grid");
   const statsEl = root.querySelector("#admin-stats");
@@ -102,6 +115,34 @@ export async function wireAdminDashboard(root) {
     showToast(err.message || t("map.toast.loadFailed"), "error");
   }
   applyFilters();
+
+  const feedbackGrid = root.querySelector("#admin-feedback-grid");
+  try {
+    const feedback = await fetchFeedback();
+    renderFeedbackGrid(feedbackGrid, feedback);
+  } catch (err) {
+    showToast(err.message || t("admin.feedback.loadFailed"), "error");
+  }
+}
+
+function wireTabs(root) {
+  const tabReports = root.querySelector("#admin-tab-reports");
+  const tabFeedback = root.querySelector("#admin-tab-feedback");
+  const panelReports = root.querySelector("#admin-panel-reports");
+  const panelFeedback = root.querySelector("#admin-panel-feedback");
+
+  const activate = (tab) => {
+    const showFeedback = tab === "feedback";
+    panelReports.hidden = showFeedback;
+    panelFeedback.hidden = !showFeedback;
+    tabReports.classList.toggle("admin-tab--active", !showFeedback);
+    tabFeedback.classList.toggle("admin-tab--active", showFeedback);
+    tabReports.setAttribute("aria-selected", String(!showFeedback));
+    tabFeedback.setAttribute("aria-selected", String(showFeedback));
+  };
+
+  tabReports.addEventListener("click", () => activate("reports"));
+  tabFeedback.addEventListener("click", () => activate("feedback"));
 }
 
 function renderStats(el, reports) {
@@ -217,4 +258,30 @@ function wireRowActions(grid) {
       }
     });
   });
+}
+
+function renderFeedbackGrid(grid, feedback) {
+  if (!feedback.length) {
+    grid.innerHTML = `<div class="empty-state"><p>${t("admin.feedback.empty")}</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = feedback
+    .map((f) => {
+      const who = f.user?.display_name || f.user?.email || t("admin.feedback.anonymous");
+      const stars = f.rating ? "★".repeat(f.rating) + "☆".repeat(5 - f.rating) : "";
+      return `
+      <article class="admin-feedback-row" data-animate-item>
+        <div class="admin-feedback-row__top">
+          <span class="admin-feedback-row__who">${escapeHtml(who)}</span>
+          ${stars ? `<span class="admin-feedback-row__stars" aria-label="${f.rating}/5">${stars}</span>` : ""}
+          <time class="admin-feedback-row__time" datetime="${f.created_at}" title="${absoluteTimestamp(f.created_at)}">${timeAgo(f.created_at)}</time>
+        </div>
+        <p class="admin-feedback-row__message">${escapeHtml(f.message)}</p>
+      </article>
+    `;
+    })
+    .join("");
+
+  animateListIn(grid);
 }

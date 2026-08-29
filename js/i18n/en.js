@@ -209,4 +209,10 @@ export default {
   "admin.dashboard.stats.open": "Open",
   "admin.dashboard.stats.inProgress": "In progress",
   "admin.dashboard.stats.resolved": "Resolved",
+
+  "admin.tabs.reports": "Reports",
+  "admin.tabs.feedback": "Feedback",
+  "admin.feedback.loadFailed": "Couldn't load feedback.",
+  "admin.feedback.empty": "No feedback yet.",
+  "admin.feedback.anonymous": "Anonymous",
 };

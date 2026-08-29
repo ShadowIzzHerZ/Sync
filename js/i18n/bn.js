@@ -193,4 +193,10 @@ export default {
   "admin.dashboard.stats.open": "খোলা",
   "admin.dashboard.stats.inProgress": "চলমান",
   "admin.dashboard.stats.resolved": "সমাধান হয়েছে",
+
+  "admin.tabs.reports": "রিপোর্ট",
+  "admin.tabs.feedback": "মতামত",
+  "admin.feedback.loadFailed": "মতামত লোড করা যায়নি।",
+  "admin.feedback.empty": "এখনও কোনো মতামত নেই।",
+  "admin.feedback.anonymous": "অজ্ঞাত",
 };

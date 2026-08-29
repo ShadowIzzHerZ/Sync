@@ -165,3 +165,13 @@ export async function submitFeedback({ userId, message, rating }) {
     .insert({ user_id: userId, message, rating: rating ?? null });
   if (error) throw error;
 }
+
+/** Staff/admin-only (RLS-enforced via feedback_select_own_or_staff): every citizen's feedback, newest first. */
+export async function fetchFeedback() {
+  const { data, error } = await supabase
+    .from("feedback")
+    .select("id, message, rating, created_at, user:profiles ( id, display_name, email )")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}

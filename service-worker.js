@@ -11,7 +11,7 @@
 // changes, so returning visitors pick up the new file set instead of a
 // stale one.
 // ---------------------------------------------------------------------------
-const SHELL_CACHE = "zen-shell-v6";
+const SHELL_CACHE = "zen-shell-v7";
 const RUNTIME_CACHE = "zen-runtime-v1";
 
 const APP_SHELL = [
@@ -38,6 +38,7 @@ const APP_SHELL = [
   "/js/i18n/ta.js",
   "/js/i18n/te.js",
   "/js/i18n/mr.js",
+  "/js/i18n/pa.js",
   "/js/etaOptions.js",
   "/js/geocode.js",
   "/js/views/shell.js",

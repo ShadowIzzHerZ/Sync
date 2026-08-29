@@ -193,4 +193,10 @@ export default {
   "admin.dashboard.stats.open": "ఓపెన్",
   "admin.dashboard.stats.inProgress": "ప్రోగ్రెస్‌లో ఉంది",
   "admin.dashboard.stats.resolved": "పరిష్కరించబడింది",
+
+  "admin.tabs.reports": "రిపోర్టులు",
+  "admin.tabs.feedback": "అభిప్రాయం",
+  "admin.feedback.loadFailed": "అభిప్రాయాన్ని లోడ్ చేయలేకపోయింది.",
+  "admin.feedback.empty": "ఇంకా అభిప్రాయం లేదు.",
+  "admin.feedback.anonymous": "అనామకుడు",
 };
