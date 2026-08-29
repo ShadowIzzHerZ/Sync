@@ -1,11 +1,14 @@
-import { state } from "./state.js";
+import { state, isStaffOrAdmin } from "./state.js";
 import { renderShell, wireShell } from "./views/shell.js";
 import { renderLandingView } from "./views/landingView.js";
 import { renderAuthView, wireAuthView } from "./views/authView.js";
 import { renderMapView, wireMapView } from "./views/mapView.js";
 import { renderMyReportsView, wireMyReportsView } from "./views/myReportsView.js";
 import { renderFeedbackView, wireFeedbackView } from "./views/feedbackView.js";
+import { renderAdminAuthView, wireAdminAuthView } from "./views/adminAuthView.js";
+import { renderAdminShell, wireAdminShell, renderAdminDashboard, wireAdminDashboard } from "./views/adminView.js";
 import { animateViewIn, animateListIn } from "./animations.js";
+import { wireLanguageSwitchers } from "./i18n.js";
 
 const root = document.getElementById("app");
 
@@ -24,6 +27,15 @@ export function initRouter() {
 
 async function render() {
   const path = currentPath();
+
+  // The municipal admin portal is a separate area gated on role, not just
+  // sign-in — handled first so it never falls through into the citizen
+  // landing/auth logic below.
+  if (path.startsWith("/admin")) {
+    await renderAdminArea(path);
+    return;
+  }
+
   const loggedIn = Boolean(state.session && state.profile);
 
   if (!loggedIn) {
@@ -38,6 +50,7 @@ async function render() {
     // hash, or a stale deep link to a page that now needs auth — lands on
     // the landing page rather than dropping straight into a login form.
     root.innerHTML = renderLandingView();
+    wireLanguageSwitchers(root);
     animateViewIn(root);
     root.querySelectorAll(".landing__features, .landing__steps").forEach(animateListIn);
     return;
@@ -63,6 +76,33 @@ async function render() {
   else if (routeName === "reports") await wireMyReportsView(routeContent);
   else if (routeName === "feedback") wireFeedbackView(routeContent);
 
+  animateViewIn(routeContent);
+}
+
+async function renderAdminArea(path) {
+  const isAdminUser = Boolean(state.session && state.profile) && isStaffOrAdmin();
+
+  if (!isAdminUser) {
+    if (path !== "/admin/login") {
+      navigate("/admin/login");
+      return;
+    }
+    root.innerHTML = renderAdminAuthView();
+    wireAdminAuthView(root);
+    animateViewIn(root);
+    return;
+  }
+
+  if (path === "/admin/login") {
+    navigate("/admin");
+    return;
+  }
+
+  root.innerHTML = renderAdminShell(renderAdminDashboard());
+  wireAdminShell(root);
+
+  const routeContent = document.getElementById("admin-route-content");
+  await wireAdminDashboard(routeContent);
   animateViewIn(routeContent);
 }
 

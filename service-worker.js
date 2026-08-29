@@ -11,7 +11,7 @@
 // changes, so returning visitors pick up the new file set instead of a
 // stale one.
 // ---------------------------------------------------------------------------
-const SHELL_CACHE = "zen-shell-v5";
+const SHELL_CACHE = "zen-shell-v6";
 const RUNTIME_CACHE = "zen-runtime-v1";
 
 const APP_SHELL = [
@@ -31,6 +31,15 @@ const APP_SHELL = [
   "/js/confirmDialog.js",
   "/js/imageRecognition.js",
   "/js/offlineQueue.js",
+  "/js/i18n.js",
+  "/js/i18n/en.js",
+  "/js/i18n/hi.js",
+  "/js/i18n/bn.js",
+  "/js/i18n/ta.js",
+  "/js/i18n/te.js",
+  "/js/i18n/mr.js",
+  "/js/etaOptions.js",
+  "/js/geocode.js",
   "/js/views/shell.js",
   "/js/views/authView.js",
   "/js/views/landingView.js",
@@ -38,6 +47,8 @@ const APP_SHELL = [
   "/js/views/myReportsView.js",
   "/js/views/feedbackView.js",
   "/js/views/reportModal.js",
+  "/js/views/adminAuthView.js",
+  "/js/views/adminView.js",
   "/assets/icon-192.png",
   "/assets/icon-512.png",
 ];

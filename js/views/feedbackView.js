@@ -2,18 +2,19 @@ import { state } from "../state.js";
 import { submitFeedback } from "../api.js";
 import { showToast } from "../toast.js";
 import { shakeElement } from "../animations.js";
+import { t } from "../i18n.js";
 
 export function renderFeedbackView() {
   return `
     <div class="page page--narrow" data-animate>
       <div class="page__header">
-        <h1>Feedback</h1>
-        <p class="page__subtitle">Found a bug, or something that could work better? Tell us.</p>
+        <h1>${t("feedback.title")}</h1>
+        <p class="page__subtitle">${t("feedback.subtitle")}</p>
       </div>
 
       <form id="feedback-form" class="card feedback-form">
         <div class="field">
-          <label>How's Zen working for you?</label>
+          <label>${t("feedback.rating.label")}</label>
           <div class="star-rating" id="star-rating" role="radiogroup" aria-label="Rating">
             ${[1, 2, 3, 4, 5]
               .map(
@@ -24,10 +25,10 @@ export function renderFeedbackView() {
           </div>
         </div>
         <div class="field">
-          <label for="feedback-message">Your feedback</label>
-          <textarea id="feedback-message" name="message" rows="5" minlength="3" maxlength="2000" required placeholder="What worked, what didn't, what would help?"></textarea>
+          <label for="feedback-message">${t("feedback.message.label")}</label>
+          <textarea id="feedback-message" name="message" rows="5" minlength="3" maxlength="2000" required placeholder="${t("feedback.message.placeholder")}"></textarea>
         </div>
-        <button type="submit" class="btn btn--primary" id="feedback-submit">Send feedback</button>
+        <button type="submit" class="btn btn--primary" id="feedback-submit">${t("feedback.submit")}</button>
       </form>
     </div>
   `;
@@ -58,28 +59,28 @@ export function wireFeedbackView(root) {
     const message = form.message.value.trim();
     if (message.length < 3) {
       shakeElement(form.message);
-      showToast("Add a bit more detail before sending.", "error");
+      showToast(t("feedback.toast.tooShort"), "error");
       return;
     }
 
     const submitBtn = root.querySelector("#feedback-submit");
     submitBtn.disabled = true;
-    submitBtn.textContent = "Sending…";
+    submitBtn.textContent = t("feedback.sending");
     try {
       await submitFeedback({
         userId: state.session.user.id,
         message,
         rating: rating || null,
       });
-      showToast("Thanks — feedback received.", "success");
+      showToast(t("feedback.toast.sent"), "success");
       form.reset();
       rating = 0;
       paintStars();
     } catch (err) {
-      showToast(err.message || "Couldn't send feedback.", "error");
+      showToast(err.message || t("feedback.toast.failed"), "error");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Send feedback";
+      submitBtn.textContent = t("feedback.submit");
     }
   });
 }

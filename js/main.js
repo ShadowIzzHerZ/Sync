@@ -5,6 +5,7 @@ import { fetchCategories } from "./api.js";
 import { initRouter, rerender } from "./router.js";
 import { startAutoFlush } from "./offlineQueue.js";
 import { showToast } from "./toast.js";
+import { getLanguage, onLanguageChange, t } from "./i18n.js";
 
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
@@ -35,6 +36,11 @@ async function bootstrapSession(session) {
 }
 
 async function main() {
+  document.documentElement.lang = getLanguage();
+  // A language switch anywhere in the app just needs the current route
+  // re-rendered with the new dictionary — no route/state change involved.
+  onLanguageChange(() => rerender());
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -70,17 +76,12 @@ async function main() {
   // regains a connection.
   startAutoFlush(({ ok, ticket, merged, error }) => {
     if (ok) {
-      showToast(
-        merged
-          ? "A queued report just synced — merged into an existing nearby report."
-          : "A queued report just synced successfully.",
-        "success",
-      );
+      showToast(merged ? t("report.toast.merged") : t("main.toast.queuedSynced"), "success");
       rerender();
     } else if (navigator.onLine) {
       // Only worth mentioning if we're actually online and it still failed
       // — if we're offline, this is just the queue correctly waiting.
-      showToast("Couldn't sync a queued report yet: " + (error?.message || "unknown error"), "error");
+      showToast(`${t("main.toast.queuedSyncFailed")} ${error?.message || "unknown error"}`, "error");
     }
   });
 }

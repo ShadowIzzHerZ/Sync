@@ -2,7 +2,7 @@ import { supabase, REPORT_PHOTO_BUCKET } from "./config.js";
 
 const TICKET_COLUMNS = `id, description, photo_url, lat, lng, status, ai_label, ai_confidence,
    severity, severity_label, cluster_id, duplicate_count, confirmation_count,
-   reporter_id, reporter_display_name, created_at,
+   reporter_id, reporter_display_name, created_at, eta_status, eta_updated_at,
    category:categories ( id, name, slug, icon )`;
 
 export async function fetchCategories() {
@@ -35,7 +35,7 @@ export async function fetchMyReports(userId) {
     .from("reports")
     .select(
       `id, description, photo_url, lat, lng, status, ai_label, ai_confidence,
-       severity, severity_label, cluster_id,
+       severity, severity_label, cluster_id, eta_status, eta_updated_at,
        reporter_id, reporter_display_name, created_at,
        category:categories ( id, name, slug, icon )`,
     )
@@ -125,6 +125,22 @@ export async function updateReportStatus(reportId, status) {
 export async function deleteReport(reportId) {
   const { error } = await supabase.from("reports").delete().eq("id", reportId);
   if (error) throw error;
+}
+
+/** Admin/staff-only (RLS-enforced): sets the expected-fix-time shown to the reporting citizen. */
+export async function updateReportEta(reportId, etaStatus, staffId) {
+  const { data, error } = await supabase
+    .from("reports")
+    .update({
+      eta_status: etaStatus,
+      eta_updated_at: new Date().toISOString(),
+      eta_set_by: staffId,
+    })
+    .eq("id", reportId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 /** One tap "still an issue?" — bumps a cluster's confidence. Idempotent per user. */

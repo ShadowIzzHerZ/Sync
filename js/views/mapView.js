@@ -6,11 +6,14 @@ import { showToast } from "../toast.js";
 import { timeAgo, absoluteTimestamp, startRelativeTimeTicker } from "../timeAgo.js";
 import { animateListIn, animateMarkerDrop } from "../animations.js";
 import { escapeHtml } from "./shell.js";
-import { STATUS_LABELS } from "../config.js";
+import { STATUSES } from "../config.js";
+import { t, tSeverity } from "../i18n.js";
+import { etaKeyFor } from "../etaOptions.js";
 
 let leafletMod = null;
 let map = null;
 let markerLayer = null;
+let youAreHereMarker = null;
 const markerByReportId = new Map();
 
 // Confirmations this session has already sent, so the button doesn't
@@ -32,24 +35,26 @@ export function renderMapView() {
     <div class="map-view" data-animate>
       <aside class="sidebar">
         <div class="sidebar__header">
-          <h1>Nearby reports</h1>
-          <button class="btn btn--primary" id="new-report-btn">+ Report an issue</button>
+          <h1>${t("map.sidebar.title")}</h1>
+          <button class="btn btn--primary" id="new-report-btn">${t("map.newReport")}</button>
         </div>
         <div class="filter-row">
           <select id="filter-status">
-            <option value="all">All statuses</option>
-            <option value="open">Open</option>
-            <option value="in_progress">In progress</option>
-            <option value="resolved">Resolved</option>
+            <option value="all">${t("map.filter.allStatuses")}</option>
+            ${STATUSES.map((s) => `<option value="${s}">${t(`status.${s}`)}</option>`).join("")}
           </select>
           <select id="filter-category">
-            <option value="all">All categories</option>
+            <option value="all">${t("map.filter.allCategories")}</option>
             ${state.categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}
           </select>
         </div>
         <div class="report-list" id="report-list"></div>
       </aside>
-      <div class="map-container" id="leaflet-map"></div>
+      <div class="map-container" id="leaflet-map">
+        <button type="button" class="recenter-btn" id="recenter-btn" title="${t("map.recenter")}" hidden>
+          <span aria-hidden="true">◎</span>
+        </button>
+      </div>
     </div>
   `;
 }
@@ -98,7 +103,7 @@ export async function wireMapView(root) {
       const reports = await fetchReports();
       setState({ reports, reportsLoadedAt: Date.now() });
     } catch (err) {
-      showToast(err.message || "Couldn't load reports.", "error");
+      showToast(err.message || t("map.toast.loadFailed"), "error");
     }
   }
 }
@@ -115,7 +120,7 @@ function renderList(listEl, reports) {
   if (!reports.length) {
     listEl.innerHTML = `
       <div class="empty-state">
-        <p>No reports match these filters yet.</p>
+        <p>${t("map.empty")}</p>
       </div>
     `;
     return;
@@ -129,9 +134,10 @@ function renderList(listEl, reports) {
         <div class="report-card__body">
           <div class="report-card__top">
             <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
-            <span class="badge badge--${r.status}">${STATUS_LABELS[r.status]}</span>
+            <span class="badge badge--${r.status}">${t(`status.${r.status}`)}</span>
           </div>
           ${renderSeverityAndCounts(r)}
+          ${renderEtaChip(r)}
           <p class="report-card__description">${escapeHtml(r.description)}</p>
           <div class="report-card__meta">
             <span>${escapeHtml(r.reporter_display_name)}</span>
@@ -169,16 +175,25 @@ function renderList(listEl, reports) {
 
 function renderSeverityAndCounts(report) {
   const severity = report.severity_label
-    ? `<span class="severity-pill severity-pill--${report.severity_label.toLowerCase()}" title="Estimated from the photo, not measured">${report.severity_label}</span>`
+    ? `<span class="severity-pill severity-pill--${report.severity_label.toLowerCase()}" title="Estimated from the photo, not measured">${tSeverity(report.severity_label)}</span>`
     : "";
   const duplicateCount = report.duplicate_count ?? 1;
   const confirmationCount = report.confirmation_count ?? 0;
   const counts = [];
-  if (duplicateCount > 1) counts.push(`Reported ${duplicateCount}×`);
-  if (confirmationCount > 0) counts.push(`${confirmationCount} confirmation${confirmationCount === 1 ? "" : "s"}`);
+  if (duplicateCount > 1) counts.push(t("map.reportedTimes", { count: duplicateCount }));
+  if (confirmationCount > 0) {
+    counts.push(t(confirmationCount === 1 ? "map.confirmations" : "map.confirmationsPlural", { count: confirmationCount }));
+  }
   const countsText = counts.length ? `<span class="cluster-counts">${counts.join(" · ")}</span>` : "";
   if (!severity && !countsText) return "";
   return `<div class="report-card__signals">${severity}${countsText}</div>`;
+}
+
+/** A read-only "expected fix: 1–2 weeks" chip once staff have set one — visible to everyone, not just the reporter. */
+function renderEtaChip(report) {
+  const key = etaKeyFor(report.eta_status);
+  if (!key) return "";
+  return `<p class="eta-chip">${t("eta.cardLabel", { eta: t(key) })}</p>`;
 }
 
 function renderCardActions(report) {
@@ -187,21 +202,19 @@ function renderCardActions(report) {
 
   const statusControl = canModerate
     ? `<select class="status-select" data-report-id="${report.id}">
-         ${Object.entries(STATUS_LABELS)
-           .map(([value, label]) => `<option value="${value}" ${value === report.status ? "selected" : ""}>${label}</option>`)
-           .join("")}
+         ${STATUSES.map((s) => `<option value="${s}" ${s === report.status ? "selected" : ""}>${t(`status.${s}`)}</option>`).join("")}
        </select>`
     : "";
 
   const deleteBtn =
     isOwner || canModerate
-      ? `<button class="btn btn--ghost btn--small btn--danger" data-delete-id="${report.id}">Delete</button>`
+      ? `<button class="btn btn--ghost btn--small btn--danger" data-delete-id="${report.id}">${t("map.card.delete")}</button>`
       : "";
 
   const confirmBtn =
     report.status !== "resolved"
       ? `<button class="btn btn--ghost btn--small" data-confirm-id="${report.id}" ${confirmedByMe.has(report.id) ? "disabled" : ""}>
-           ${confirmedByMe.has(report.id) ? "Confirmed ✓" : "Still an issue?"}
+           ${confirmedByMe.has(report.id) ? t("map.card.confirmed") : t("map.card.stillIssue")}
          </button>`
       : "";
 
@@ -219,9 +232,9 @@ function wireCardActions(listEl) {
           reports: state.reports.map((r) => (r.id === updated.id ? { ...r, status: updated.status } : r)),
         });
         refreshMapView();
-        showToast("Status updated.", "success");
+        showToast(t("map.toast.statusUpdated"), "success");
       } catch (err) {
-        showToast(err.message || "Couldn't update status.", "error");
+        showToast(err.message || t("map.toast.statusFailed"), "error");
       }
     });
   });
@@ -230,9 +243,9 @@ function wireCardActions(listEl) {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
       const confirmed = await confirmDialog({
-        title: "Delete this report?",
-        message: "This can't be undone.",
-        confirmLabel: "Delete",
+        title: t("reports.confirm.title"),
+        message: t("reports.confirm.message"),
+        confirmLabel: t("reports.confirm.confirmLabel"),
         danger: true,
       });
       if (!confirmed) return;
@@ -240,9 +253,9 @@ function wireCardActions(listEl) {
         await deleteReport(btn.dataset.deleteId);
         setState({ reports: state.reports.filter((r) => r.id !== btn.dataset.deleteId) });
         refreshMapView();
-        showToast("Report deleted.", "success");
+        showToast(t("map.toast.deleted"), "success");
       } catch (err) {
-        showToast(err.message || "Couldn't delete report.", "error");
+        showToast(err.message || t("map.toast.deleteFailed"), "error");
       }
     });
   });
@@ -266,7 +279,7 @@ async function handleConfirmClick(masterReportId) {
       ),
     });
     refreshMapView();
-    showToast("Thanks — confirmed this is still an issue.", "success");
+    showToast(t("map.toast.confirmed"), "success");
   } catch (err) {
     if (err.alreadyConfirmed) {
       confirmedByMe.add(masterReportId);
@@ -274,7 +287,7 @@ async function handleConfirmClick(masterReportId) {
       showToast(err.message, "info");
       return;
     }
-    showToast(err.message || "Couldn't confirm this report.", "error");
+    showToast(err.message || t("map.toast.confirmFailed"), "error");
   }
 }
 
@@ -284,13 +297,26 @@ async function ensureMap(container) {
   }
   const L = leafletMod.default ?? leafletMod;
 
-  const center = await currentPositionOrDefault();
-  map = L.map(container, { zoomControl: true }).setView([center.lat, center.lng], 14);
+  const position = await currentPositionOrDefault();
+  map = L.map(container, { zoomControl: true }).setView([position.lat, position.lng], 14);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors",
     maxZoom: 19,
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
+
+  if (position.isReal) placeYouAreHereMarker(L, position);
+
+  const recenterBtn = container.querySelector("#recenter-btn");
+  if (recenterBtn) {
+    recenterBtn.hidden = !navigator.geolocation;
+    recenterBtn.addEventListener("click", async () => {
+      const pos = await currentPositionOrDefault();
+      if (!pos.isReal) return;
+      placeYouAreHereMarker(L, pos);
+      map.flyTo([pos.lat, pos.lng], Math.max(map.getZoom(), 15), { duration: 0.6 });
+    });
+  }
 
   // Leaflet measures its container at construction time. The container can
   // still be mid-layout then (view-transition opacity doesn't affect this,
@@ -311,12 +337,30 @@ async function ensureMap(container) {
   window.__civicMap = map; // convenience for debugging in devtools only
 }
 
+/** Distinct blue "you are here" dot + pulse ring — kept off markerLayer so status/category filters never hide it. */
+function placeYouAreHereMarker(L, position) {
+  youAreHereMarker?.remove();
+  const icon = L.divIcon({
+    className: "",
+    html: `<div class="you-are-here-pulse"></div><div class="you-are-here-dot"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
+  youAreHereMarker = L.marker([position.lat, position.lng], {
+    icon,
+    interactive: false,
+    zIndexOffset: 1000,
+    keyboard: false,
+  }).addTo(map);
+  youAreHereMarker.bindTooltip(t("map.youAreHere"), { direction: "top", offset: [0, -6] });
+}
+
 function currentPositionOrDefault() {
   return new Promise((resolve) => {
-    if (!navigator.geolocation) return resolve(DEFAULT_CENTER);
+    if (!navigator.geolocation) return resolve({ ...DEFAULT_CENTER, isReal: false });
     navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => resolve(DEFAULT_CENTER),
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, isReal: true }),
+      () => resolve({ ...DEFAULT_CENTER, isReal: false }),
       { timeout: 4000 },
     );
   });
@@ -349,7 +393,7 @@ function renderPopup(r) {
   const confirmBtn =
     r.status !== "resolved"
       ? `<button class="btn btn--ghost btn--small" data-popup-confirm-id="${r.id}" ${confirmedByMe.has(r.id) ? "disabled" : ""}>
-           ${confirmedByMe.has(r.id) ? "Confirmed ✓" : "Still an issue?"}
+           ${confirmedByMe.has(r.id) ? t("map.card.confirmed") : t("map.card.stillIssue")}
          </button>`
       : "";
   return `
@@ -357,8 +401,9 @@ function renderPopup(r) {
       <img src="${r.photo_url}" alt="" />
       <div class="map-popup__body">
         <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
-        <span class="badge badge--${r.status}">${STATUS_LABELS[r.status]}</span>
+        <span class="badge badge--${r.status}">${t(`status.${r.status}`)}</span>
         ${renderSeverityAndCounts(r)}
+        ${renderEtaChip(r)}
         <p>${escapeHtml(r.description)}</p>
         <div class="report-card__meta">
           <span>${escapeHtml(r.reporter_display_name)}</span>

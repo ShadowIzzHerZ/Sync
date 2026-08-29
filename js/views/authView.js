@@ -2,46 +2,47 @@ import { signInWithEmail, signUpWithEmail } from "../auth.js";
 import { showToast } from "../toast.js";
 import { shakeElement } from "../animations.js";
 import { navigate } from "../router.js";
+import { t, renderLanguageSwitcher, wireLanguageSwitchers } from "../i18n.js";
 
 export function renderAuthView(mode = "login") {
   const isSignup = mode === "signup";
   return `
     <div class="auth-screen">
       <div class="auth-card" data-animate>
-        <a href="#/" class="auth-card__brand">
-          <span class="topbar__mark" aria-hidden="true">Z</span>
-          <span>Zen</span>
-        </a>
-        <p class="auth-card__tagline">Report a civic issue. Track it on the map. See it fixed.</p>
+        <div class="auth-card__top">
+          <a href="#/" class="auth-card__brand">
+            <span class="topbar__mark" aria-hidden="true">Z</span>
+            <span>Zen</span>
+          </a>
+          ${renderLanguageSwitcher()}
+        </div>
+        <p class="auth-card__tagline">${t("auth.tagline")}</p>
 
         <div class="auth-tabs" role="tablist">
-          <a href="#/login" class="auth-tab ${!isSignup ? "auth-tab--active" : ""}" role="tab">Log in</a>
-          <a href="#/signup" class="auth-tab ${isSignup ? "auth-tab--active" : ""}" role="tab">Sign up</a>
+          <a href="#/login" class="auth-tab ${!isSignup ? "auth-tab--active" : ""}" role="tab">${t("auth.tab.login")}</a>
+          <a href="#/signup" class="auth-tab ${isSignup ? "auth-tab--active" : ""}" role="tab">${t("auth.tab.signup")}</a>
         </div>
 
         <form id="auth-form" class="auth-form" novalidate>
           ${
             isSignup
               ? `<div class="field">
-                   <label for="display_name">Display name</label>
-                   <input id="display_name" name="display_name" type="text" autocomplete="name" placeholder="e.g. Priya from Sector 12" />
+                   <label for="display_name">${t("auth.displayName.label")}</label>
+                   <input id="display_name" name="display_name" type="text" autocomplete="name" placeholder="${t("auth.displayName.placeholder")}" />
                  </div>`
               : ""
           }
           <div class="field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
+            <label for="email">${t("auth.email.label")}</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="${t("auth.email.placeholder")}" />
           </div>
           <div class="field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="${isSignup ? "new-password" : "current-password"}" required minlength="6" placeholder="At least 6 characters" />
+            <label for="password">${t("auth.password.label")}</label>
+            <input id="password" name="password" type="password" autocomplete="${isSignup ? "new-password" : "current-password"}" required minlength="6" placeholder="${t("auth.password.placeholder")}" />
           </div>
-          <p class="field-hint">
-            Accounts exist so every pin on the map is tied to a real person —
-            it's what keeps the map honest.
-          </p>
+          <p class="field-hint">${t("auth.hint")}</p>
           <button type="submit" class="btn btn--primary btn--block" id="auth-submit">
-            ${isSignup ? "Create account" : "Log in"}
+            ${isSignup ? t("auth.submit.signup") : t("auth.submit.login")}
           </button>
         </form>
       </div>
@@ -50,6 +51,8 @@ export function renderAuthView(mode = "login") {
 }
 
 export function wireAuthView(root, mode) {
+  wireLanguageSwitchers(root);
+
   const form = root.querySelector("#auth-form");
   const submitBtn = root.querySelector("#auth-submit");
 
@@ -60,23 +63,23 @@ export function wireAuthView(root, mode) {
 
     if (!email || password.length < 6) {
       shakeElement(form);
-      showToast("Enter a valid email and a password of at least 6 characters.", "error");
+      showToast(t("auth.error.generic"), "error");
       return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = mode === "signup" ? "Creating account…" : "Logging in…";
+    submitBtn.textContent = mode === "signup" ? t("auth.submitting.signup") : t("auth.submitting.login");
 
     try {
       if (mode === "signup") {
         const displayName = form.display_name?.value.trim();
         const { needsEmailConfirmation } = await signUpWithEmail(email, password, displayName);
         if (needsEmailConfirmation) {
-          showToast("Account created — check your email to confirm, then log in.", "success");
+          showToast(t("auth.toast.accountCreated"), "success");
           navigate("/login");
           return;
         }
-        showToast("Welcome to Zen!", "success");
+        showToast(t("auth.toast.welcome"), "success");
       } else {
         await signInWithEmail(email, password);
       }
@@ -86,14 +89,14 @@ export function wireAuthView(root, mode) {
       showToast(friendlyAuthError(err), "error");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = mode === "signup" ? "Create account" : "Log in";
+      submitBtn.textContent = mode === "signup" ? t("auth.submit.signup") : t("auth.submit.login");
     }
   });
 }
 
 function friendlyAuthError(err) {
-  const msg = err?.message || "Something went wrong.";
-  if (/invalid login credentials/i.test(msg)) return "Incorrect email or password.";
-  if (/already registered/i.test(msg)) return "That email already has an account — try logging in.";
+  const msg = err?.message || t("auth.error.generic");
+  if (/invalid login credentials/i.test(msg)) return t("auth.error.invalidCredentials");
+  if (/already registered/i.test(msg)) return t("auth.error.alreadyRegistered");
   return msg;
 }

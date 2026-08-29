@@ -1,10 +1,11 @@
 import { state } from "../state.js";
 import { createReport, uploadReportPhoto } from "../api.js";
-import { classifyImage, estimateSeverity } from "../imageRecognition.js";
+import { classifyImage, estimateSeverity, resolveCategorySuggestion } from "../imageRecognition.js";
 import { queuePendingReport } from "../offlineQueue.js";
 import { showToast } from "../toast.js";
 import { openModalAnimation, closeModalAnimation, animateProgress, shakeElement, withTimeout } from "../animations.js";
 import { escapeHtml } from "./shell.js";
+import { t, tSeverity } from "../i18n.js";
 
 let leafletMod = null;
 let pickerMap = null;
@@ -22,34 +23,34 @@ export function openReportModal(startLatLng) {
     backdrop.innerHTML = `
       <div class="modal-panel modal-panel--wide" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
         <div class="modal-header">
-          <h2 id="report-modal-title">Report a civic issue</h2>
-          <button class="icon-btn" id="report-modal-close" aria-label="Close">✕</button>
+          <h2 id="report-modal-title">${t("report.modal.title")}</h2>
+          <button class="icon-btn" id="report-modal-close" aria-label="${t("report.modal.close")}">✕</button>
         </div>
         <form id="report-form" class="modal-body report-form">
           <div class="report-form__grid">
             <div class="report-form__col">
               <div class="field">
-                <label for="photo-input">Photo</label>
+                <label for="photo-input">${t("report.form.photo.label")}</label>
                 <div class="photo-drop" id="photo-drop">
                   <input id="photo-input" name="photo" type="file" accept="image/*" capture="environment" required />
                   <div class="photo-drop__placeholder" id="photo-placeholder">
-                    <span class="photo-drop__label">Add a photo</span>
-                    <span>Click to upload, or take one now</span>
+                    <span class="photo-drop__label">${t("report.form.photo.add")}</span>
+                    <span>${t("report.form.photo.hint")}</span>
                   </div>
                   <img id="photo-preview" alt="Selected issue photo" hidden />
                 </div>
                 <div class="ai-status" id="ai-status" hidden>
                   <div class="progress-bar"><div class="progress-bar__fill" id="ai-progress"></div></div>
-                  <span id="ai-status-text">Analyzing photo on-device…</span>
+                  <span id="ai-status-text">${t("report.form.ai.analyzing")}</span>
                 </div>
                 <div class="ai-suggestion" id="ai-suggestion" hidden></div>
                 <div class="severity-badge" id="severity-badge" hidden></div>
               </div>
 
               <div class="field">
-                <label for="category-select">Category</label>
+                <label for="category-select">${t("report.form.category.label")}</label>
                 <select id="category-select" name="category_id" required>
-                  <option value="" disabled selected>Choose a category</option>
+                  <option value="" disabled selected>${t("report.form.category.placeholder")}</option>
                   ${state.categories
                     .map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`)
                     .join("")}
@@ -57,25 +58,25 @@ export function openReportModal(startLatLng) {
               </div>
 
               <div class="field">
-                <label for="description">What's going on?</label>
-                <textarea id="description" name="description" rows="4" minlength="5" maxlength="2000" required placeholder="Describe the issue — size, severity, anything a repair crew should know."></textarea>
+                <label for="description">${t("report.form.description.label")}</label>
+                <textarea id="description" name="description" rows="4" minlength="5" maxlength="2000" required placeholder="${t("report.form.description.placeholder")}"></textarea>
               </div>
             </div>
 
             <div class="report-form__col">
               <div class="field">
-                <label>Location</label>
-                <p class="field-hint">We'll ask for your location and drop the pin there — drag it or click anywhere on the map to place it exactly instead.</p>
+                <label>${t("report.form.location.label")}</label>
+                <p class="field-hint">${t("report.form.location.hint")}</p>
                 <div class="picker-map" id="picker-map"></div>
                 <p class="location-status" id="location-status" aria-live="polite"></p>
-                <button type="button" class="btn btn--ghost btn--small" id="use-my-location">Use my current location</button>
+                <button type="button" class="btn btn--ghost btn--small" id="use-my-location">${t("report.form.location.useMine")}</button>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn--ghost" id="report-cancel">Cancel</button>
-            <button type="submit" class="btn btn--primary" id="report-submit">Submit report</button>
+            <button type="button" class="btn btn--ghost" id="report-cancel">${t("report.form.cancel")}</button>
+            <button type="submit" class="btn btn--primary" id="report-submit">${t("report.form.submit")}</button>
           </div>
         </form>
       </div>
@@ -106,17 +107,17 @@ export function openReportModal(startLatLng) {
 
     function requestInitialLocation() {
       if (!navigator.geolocation) return;
-      locationStatus.textContent = "Finding your location…";
+      locationStatus.textContent = t("report.form.location.finding");
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           if (userMovedPin) return;
           picked = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           recenterPickerMap(picked);
-          locationStatus.textContent = "Located you — drag the pin if it's not quite right.";
+          locationStatus.textContent = t("report.form.location.located");
         },
         () => {
           if (userMovedPin) return;
-          locationStatus.textContent = "Couldn't get your location — place the pin manually.";
+          locationStatus.textContent = t("report.form.location.failed");
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 },
       );
@@ -137,20 +138,20 @@ export function openReportModal(startLatLng) {
 
     backdrop.querySelector("#use-my-location").addEventListener("click", () => {
       if (!navigator.geolocation) {
-        showToast("Geolocation isn't available in this browser.", "error");
+        showToast(t("report.toast.geoUnavailable"), "error");
         return;
       }
-      locationStatus.textContent = "Finding your location…";
+      locationStatus.textContent = t("report.form.location.finding");
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           picked = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           userMovedPin = false; // this *is* the authoritative location now, not a manual override
           recenterPickerMap(picked);
-          locationStatus.textContent = "Located you — drag the pin if it's not quite right.";
+          locationStatus.textContent = t("report.form.location.located");
         },
         () => {
           locationStatus.textContent = "";
-          showToast("Couldn't get your location — place the pin manually.", "error");
+          showToast(t("report.form.location.failed"), "error");
         },
         { enableHighAccuracy: true, timeout: 8000 },
       );
@@ -179,7 +180,7 @@ export function openReportModal(startLatLng) {
       aiSuggestion.hidden = true;
       severityBadge.hidden = true;
       aiStatus.hidden = false;
-      aiStatusText.textContent = "Loading on-device model…";
+      aiStatusText.textContent = t("report.form.ai.loadingModel");
       animateProgress(aiProgress, 25);
 
       try {
@@ -196,10 +197,13 @@ export function openReportModal(startLatLng) {
         severityBadge.hidden = false;
         severityBadge.innerHTML = renderSeverityBadge(severityResult);
 
-        aiStatusText.textContent = "Analyzing photo on-device…";
+        aiStatusText.textContent = t("report.form.ai.analyzing");
         animateProgress(aiProgress, 65);
         const result = await classifyImage(photoPreview);
-        aiResult = result.suggestion;
+        // Combine the classifier with the severity heuristic — see
+        // resolveCategorySuggestion()'s doc comment for why the classifier
+        // alone can't recognize a pothole.
+        aiResult = resolveCategorySuggestion(result.suggestion, severityResult);
         animateProgress(aiProgress, 100);
 
         const match = state.categories.find((c) => c.slug === aiResult.slug);
@@ -209,7 +213,7 @@ export function openReportModal(startLatLng) {
         aiSuggestion.innerHTML = renderAiSuggestion(aiResult, match);
       } catch (err) {
         console.warn("Image recognition failed", err);
-        aiStatusText.textContent = "Couldn't analyze this photo — pick a category manually.";
+        aiStatusText.textContent = t("report.form.ai.failed");
         animateProgress(aiProgress, 100);
       } finally {
         setTimeout(() => (aiStatus.hidden = true), 900);
@@ -223,18 +227,18 @@ export function openReportModal(startLatLng) {
       e.preventDefault();
       if (!selectedFile) {
         shakeElement(photoInput.closest(".photo-drop"));
-        showToast("Add a photo of the issue first.", "error");
+        showToast(t("report.toast.needPhoto"), "error");
         return;
       }
       if (!categorySelect.value) {
         shakeElement(categorySelect);
-        showToast("Pick a category.", "error");
+        showToast(t("report.toast.needCategory"), "error");
         return;
       }
       const description = form.description.value.trim();
       if (description.length < 5) {
         shakeElement(form.description);
-        showToast("Add a few more words describing the issue.", "error");
+        showToast(t("report.toast.needDescription"), "error");
         return;
       }
 
@@ -254,48 +258,40 @@ export function openReportModal(startLatLng) {
       submitBtn.disabled = true;
 
       if (!navigator.onLine) {
-        submitBtn.textContent = "Saving offline…";
+        submitBtn.textContent = t("report.form.savingOffline");
         try {
           await queuePendingReport({ ...reportData, photoBlob: selectedFile });
-          showToast(
-            "You're offline — saved on this device and will submit automatically once you're back online.",
-            "info",
-          );
+          showToast(t("report.toast.offlineSaved"), "info");
           await closeAndResolve({ offline: true });
         } catch (err) {
-          showToast("Couldn't save this report: " + (err.message || "unknown error"), "error");
+          showToast(`${t("report.toast.saveOfflineFailed")} ${err.message || "unknown error"}`, "error");
           submitBtn.disabled = false;
-          submitBtn.textContent = "Submit report";
+          submitBtn.textContent = t("report.form.submit");
         }
         return;
       }
 
-      submitBtn.textContent = "Uploading photo…";
+      submitBtn.textContent = t("report.form.uploadingPhoto");
       try {
         const photoUrl = await uploadReportPhoto(state.session.user.id, selectedFile);
-        submitBtn.textContent = "Saving report…";
+        submitBtn.textContent = t("report.form.savingReport");
         const { ticket, merged } = await createReport({ ...reportData, photoUrl });
-        showToast(
-          merged
-            ? "Someone nearby already reported this — added your confirmation instead of a duplicate pin."
-            : "Report submitted — thanks for helping keep things fixed.",
-          merged ? "info" : "success",
-        );
+        showToast(merged ? t("report.toast.merged") : t("report.toast.submitted"), merged ? "info" : "success");
         await closeAndResolve({ ticket, merged });
       } catch (err) {
         if (isLikelyNetworkError(err)) {
           try {
             await queuePendingReport({ ...reportData, photoBlob: selectedFile });
-            showToast("Couldn't reach the network — saved on this device and will retry automatically.", "info");
+            showToast(t("report.toast.offlineFallback"), "info");
             await closeAndResolve({ offline: true });
             return;
           } catch {
             // fall through to the generic error below
           }
         }
-        showToast(err.message || "Couldn't submit the report.", "error");
+        showToast(err.message || t("report.toast.submitFailed"), "error");
         submitBtn.disabled = false;
-        submitBtn.textContent = "Submit report";
+        submitBtn.textContent = t("report.form.submit");
       }
     });
   });
@@ -308,10 +304,10 @@ function isLikelyNetworkError(err) {
 function renderSeverityBadge(severity) {
   return `
     <span class="severity-badge__pill severity-badge__pill--${severity.label.toLowerCase()}">
-      ${severity.label} severity
+      ${tSeverity(severity.label)} ${t("report.form.severity.suffix")}
     </span>
     <span class="severity-badge__note">
-      Estimated from the photo (shadow/void size, surface roughness) — not a measured dimension.
+      ${t("report.form.severity.note")}
     </span>
   `;
 }
@@ -320,14 +316,13 @@ function renderAiSuggestion(aiResult, matchedCategory) {
   const pct = Math.round((aiResult.confidence || 0) * 100);
   if (matchedCategory) {
     return `
-      <span class="ai-suggestion__badge">On-device suggestion</span>
-      Looks like <strong>${escapeHtml(matchedCategory.name)}</strong> (${pct}% match on "${escapeHtml(aiResult.label)}").
-      Category preselected — change it if that's wrong.
+      <span class="ai-suggestion__badge">${t("report.form.ai.badge")}</span>
+      ${t("report.form.ai.matched", { category: escapeHtml(matchedCategory.name), pct, label: escapeHtml(aiResult.label) })}
     `;
   }
   return `
-    <span class="ai-suggestion__badge ai-suggestion__badge--muted">On-device suggestion</span>
-    Not confident enough to guess a category (closest match: "${escapeHtml(aiResult.label)}"). Please choose one yourself.
+    <span class="ai-suggestion__badge ai-suggestion__badge--muted">${t("report.form.ai.badge")}</span>
+    ${t("report.form.ai.unmatched", { label: escapeHtml(aiResult.label) })}
   `;
 }
 

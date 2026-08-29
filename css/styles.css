@@ -778,6 +778,7 @@ textarea {
 }
 
 .map-container {
+  position: relative;
   min-height: 0;
   height: 100%;
   background: var(--color-surface-sunken);
@@ -1403,5 +1404,396 @@ textarea {
     width: 100%;
     justify-content: flex-start;
     overflow-x: auto;
+  }
+}
+
+/* ---------- Language switcher ---------- */
+
+.lang-switch {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--color-surface-sunken);
+  border-color: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+
+.lang-switch:hover {
+  border-color: var(--color-border-strong);
+}
+
+.landing__nav-actions {
+  align-items: center;
+}
+
+.landing__footer-staff {
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .landing__footer {
+    flex-wrap: wrap;
+  }
+  .landing__footer-staff {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.auth-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+/* ---------- ETA chip (citizen-facing) ---------- */
+
+.eta-chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-info);
+  background: var(--color-info-soft);
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin: 4px 0;
+  width: fit-content;
+}
+
+/* ---------- "You are here" map marker ---------- */
+
+.you-are-here-dot {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-info);
+  border: 2px solid #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.you-are-here-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-info);
+  opacity: 0.35;
+  animation: you-are-here-pulse 2.2s ease-out infinite;
+}
+
+@keyframes you-are-here-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.recenter-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 12px;
+  z-index: 15;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-info);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.recenter-btn:hover {
+  color: var(--color-accent);
+}
+
+/* ---------- Municipal admin portal ----------
+   Deliberately not the citizen app's rust/terracotta accent — a cooler
+   slate + info-blue palette so the portal reads as a distinct, official
+   surface at a glance, while still following the same HIG conventions
+   (system font, soft shadow elevation, continuous-feeling radii) as the
+   rest of the app rather than inventing a new visual language. */
+
+.admin-auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: linear-gradient(180deg, #1d2430 0%, #11151d 100%);
+}
+
+.admin-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+}
+
+.admin-auth-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-auth-card__back {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink-faint);
+}
+
+.admin-auth-card__back:hover {
+  color: var(--color-ink);
+}
+
+.admin-auth-card__badge {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: #1d2430;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+}
+
+.admin-auth-card__title {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+
+.admin-auth-card__tagline {
+  color: var(--color-ink-soft);
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.admin-auth-card__submit {
+  background: #1d2430;
+}
+
+.admin-auth-card__submit:hover:not(:disabled) {
+  background: #11151d;
+}
+
+.admin-shell {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  height: 64px;
+  background: #1d2430;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.admin-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-topbar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--color-info);
+  color: #fff;
+  font-weight: 800;
+}
+
+.admin-topbar__brand > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-topbar__title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.admin-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-topbar__who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.admin-content {
+  padding: 8px 0 40px;
+}
+
+.admin-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-stat {
+  flex: 1;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-stat__value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+.admin-stat__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-ink-faint);
+}
+
+.admin-report-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-report-row {
+  display: flex;
+  gap: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+}
+
+.admin-report-row__photo {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-surface-sunken);
+}
+
+.admin-report-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-report-row__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-report-row__description {
+  font-size: 0.88rem;
+  color: var(--color-ink);
+}
+
+.admin-report-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--color-ink-faint);
+}
+
+.admin-report-row__location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.admin-report-row__coords {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-soft);
+}
+
+.admin-report-row__controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.admin-report-row__control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-report-row__control-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-report-row__control select {
+  font-size: 0.82rem;
+  padding: 7px 10px;
+}
+
+@media (max-width: 640px) {
+  .admin-report-row {
+    flex-direction: column;
+  }
+  .admin-report-row__photo {
+    width: 100%;
+    height: 160px;
+  }
+  .admin-stats {
+    flex-direction: column;
   }
 }
