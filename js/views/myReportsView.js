@@ -4,7 +4,7 @@ import { showToast } from "../toast.js";
 import { timeAgo, absoluteTimestamp, startRelativeTimeTicker } from "../timeAgo.js";
 import { animateListIn } from "../animations.js";
 import { escapeHtml } from "./shell.js";
-import { CATEGORY_ICONS, STATUS_LABELS } from "../config.js";
+import { STATUS_LABELS } from "../config.js";
 import { confirmDialog } from "../confirmDialog.js";
 
 export function renderMyReportsView() {
@@ -33,7 +33,6 @@ export async function wireMyReportsView(root) {
   if (!mine.length) {
     grid.innerHTML = `
       <div class="empty-state">
-        <span class="empty-state__icon" aria-hidden="true">📭</span>
         <p>You haven't reported anything yet.</p>
         <a href="#/map" class="btn btn--primary">Report your first issue</a>
       </div>
@@ -52,7 +51,7 @@ export async function wireMyReportsView(root) {
         <img class="report-card__photo" src="${r.photo_url}" alt="" loading="lazy" />
         <div class="report-card__body">
           <div class="report-card__top">
-            <span class="category-chip">${CATEGORY_ICONS[r.category?.slug] || "📍"} ${escapeHtml(r.category?.name || "Uncategorized")}</span>
+            <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
             <span class="badge badge--${r.status}">${STATUS_LABELS[r.status]}</span>
           </div>
           ${severity ? `<div class="report-card__signals">${severity}</div>` : ""}

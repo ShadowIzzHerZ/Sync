@@ -7,42 +7,48 @@
    =========================================================================== */
 
 :root {
-  --color-ink: #10192b;
-  --color-ink-soft: #4b5568;
-  --color-ink-faint: #8892a4;
+  /* Warm paper neutrals instead of cool SaaS gray — closer to newsprint
+     or a municipal notice than a dashboard. */
+  --color-ink: #201c16;
+  --color-ink-soft: #5b5348;
+  --color-ink-faint: #948b7c;
 
-  --color-bg: #f4f5f7;
-  --color-surface: #ffffff;
-  --color-surface-sunken: #eef0f3;
-  --color-border: #e0e3e9;
-  --color-border-strong: #c9cedb;
+  --color-bg: #f6f3ec;
+  --color-surface: #fffdf9;
+  --color-surface-sunken: #ede7d9;
+  --color-border: #ded5c0;
+  --color-border-strong: #c3b79c;
 
-  --color-primary: #143d6b;
-  --color-primary-strong: #0d2c4f;
-  --color-primary-soft: #e7edf5;
+  /* One accent, used consistently for anything actionable — no second
+     "brand blue" competing with it. Rust/clay reads as civic signage,
+     not startup gradient. */
+  --color-primary: #24211a;
+  --color-primary-strong: #100e0a;
+  --color-primary-soft: #e9e3d3;
 
-  --color-accent: #d9762a;
-  --color-accent-strong: #b95f1c;
-  --color-accent-soft: #fbe9d9;
+  --color-accent: #a8451f;
+  --color-accent-strong: #832f11;
+  --color-accent-soft: #f2ded0;
 
-  --color-success: #1a7f4e;
-  --color-success-soft: #e2f5ea;
-  --color-warning: #b5860a;
-  --color-warning-soft: #faf0d6;
-  --color-danger: #b3311f;
-  --color-danger-soft: #fbe6e2;
-  --color-info: #275b96;
-  --color-info-soft: #e5edf7;
+  --color-success: #3e6b3a;
+  --color-success-soft: #e4ecdd;
+  --color-warning: #92650f;
+  --color-warning-soft: #f2e7cd;
+  --color-danger: #a3341f;
+  --color-danger-soft: #f2ddd3;
+  --color-info: #3c5a73;
+  --color-info-soft: #e2e8ed;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
 
-  --shadow-sm: 0 1px 2px rgba(16, 25, 43, 0.06);
-  --shadow-md: 0 6px 20px rgba(16, 25, 43, 0.1);
-  --shadow-lg: 0 16px 40px rgba(16, 25, 43, 0.16);
+  --shadow-sm: 0 1px 2px rgba(32, 28, 22, 0.07);
+  --shadow-md: 0 6px 20px rgba(32, 28, 22, 0.1);
+  --shadow-lg: 0 16px 40px rgba(32, 28, 22, 0.18);
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 
   color-scheme: light;
 }
@@ -76,7 +82,14 @@ body {
 }
 
 h1,
-h2,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--color-ink);
+}
+
 h3 {
   font-family: var(--font-sans);
   font-weight: 700;
@@ -139,11 +152,13 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: var(--radius-sm);
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #fff;
+  font-family: var(--font-serif);
+  font-weight: 600;
   font-size: 0.95rem;
 }
 
@@ -312,6 +327,11 @@ textarea {
   cursor: not-allowed;
 }
 
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .btn--primary {
   background: var(--color-accent);
   color: #fff;
@@ -439,38 +459,49 @@ textarea {
 }
 
 .landing__hero {
-  max-width: 760px;
+  max-width: 620px;
   margin: 0 auto;
-  padding: 64px 24px 56px;
-  text-align: center;
-}
-
-.landing__eyebrow {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--color-accent-strong);
-  margin-bottom: 16px;
+  padding: 76px 24px 60px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .landing__title {
-  font-size: 2.4rem;
-  line-height: 1.15;
-  margin-bottom: 20px;
+  font-size: 2.5rem;
+  line-height: 1.18;
+  margin-bottom: 18px;
 }
 
 .landing__subtitle {
   font-size: 1.05rem;
   color: var(--color-ink-soft);
   line-height: 1.6;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
+  max-width: 46ch;
 }
 
 .landing__cta-row {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  align-items: center;
+  gap: 18px;
   flex-wrap: wrap;
+}
+
+.landing__cta-row .btn {
+  order: 1;
+}
+
+.landing__cta-secondary {
+  order: 2;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: 1px;
+}
+
+.landing__cta-secondary:hover {
+  color: var(--color-ink);
+  border-color: var(--color-ink-soft);
 }
 
 .btn--large {
@@ -498,31 +529,28 @@ textarea {
 }
 
 .landing__section-title {
-  font-size: 1.4rem;
-  text-align: center;
-  margin-bottom: 32px;
+  font-size: 1.35rem;
+  margin-bottom: 28px;
 }
 
 .landing__features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .feature-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-}
-
-.feature-card__icon {
-  font-size: 1.6rem;
-  margin-bottom: 12px;
+  padding: 22px 20px;
+  border-top: 2px solid var(--color-accent);
 }
 
 .feature-card h3 {
-  font-size: 1rem;
+  font-size: 0.98rem;
   margin-bottom: 8px;
 }
 
@@ -539,7 +567,6 @@ textarea {
 }
 
 .step-card {
-  text-align: center;
   padding: 8px;
 }
 
@@ -547,12 +574,13 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--color-primary);
-  color: #fff;
-  font-weight: 800;
+  border: 1.5px solid var(--color-ink);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  font-weight: 600;
   margin-bottom: 14px;
 }
 
@@ -568,15 +596,15 @@ textarea {
 }
 
 .landing__final-cta {
-  max-width: 640px;
+  max-width: 620px;
   margin: 0 auto;
-  padding: 64px 24px 80px;
-  text-align: center;
+  padding: 60px 24px 80px;
 }
 
 .landing__final-cta h2 {
-  font-size: 1.5rem;
-  margin-bottom: 24px;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  max-width: 30ch;
 }
 
 .landing__footer {
@@ -1030,8 +1058,12 @@ textarea {
   padding: 0 12px;
 }
 
-.photo-drop__icon {
-  font-size: 1.6rem;
+.photo-drop__label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-strong);
 }
 
 #photo-preview {
@@ -1245,10 +1277,6 @@ textarea {
   color: var(--color-ink-faint);
   font-size: 0.9rem;
   grid-column: 1 / -1;
-}
-
-.empty-state__icon {
-  font-size: 1.8rem;
 }
 
 /* ---------- Toasts ---------- */

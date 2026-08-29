@@ -13,7 +13,7 @@ export function renderShell(activeRoute, contentHtml) {
     <div class="app-shell">
       <header class="topbar" data-animate>
         <div class="topbar__brand">
-          <span class="topbar__mark" aria-hidden="true">◈</span>
+          <span class="topbar__mark" aria-hidden="true">Z</span>
           <span class="topbar__title">Zen</span>
         </div>
         <nav class="topbar__nav" aria-label="Primary">

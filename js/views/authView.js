@@ -9,7 +9,7 @@ export function renderAuthView(mode = "login") {
     <div class="auth-screen">
       <div class="auth-card" data-animate>
         <a href="#/" class="auth-card__brand">
-          <span class="topbar__mark" aria-hidden="true">◈</span>
+          <span class="topbar__mark" aria-hidden="true">Z</span>
           <span>Zen</span>
         </a>
         <p class="auth-card__tagline">Report a civic issue. Track it on the map. See it fixed.</p>

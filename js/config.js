@@ -20,14 +20,6 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 
 export const REPORT_PHOTO_BUCKET = "report-photos";
 
-export const CATEGORY_ICONS = {
-  pothole: "🕳️",
-  garbage: "🗑️",
-  streetlight: "💡",
-  water: "💧",
-  other: "📍",
-};
-
 export const STATUS_LABELS = {
   open: "Open",
   in_progress: "In progress",
