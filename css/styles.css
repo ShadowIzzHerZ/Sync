@@ -1272,6 +1272,13 @@ textarea {
   margin-bottom: 24px;
 }
 
+.page__header--with-action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .page__header h1 {
   font-size: 1.4rem;
 }

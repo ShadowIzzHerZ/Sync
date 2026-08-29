@@ -226,4 +226,5 @@ export default {
   "admin.dashboard.assignment.unassigned": "Unassigned",
   "admin.dashboard.assignment.you": "Assigned to you",
   "admin.dashboard.newReport": "New report received.",
+  "admin.nav.citizenView": "Citizen view",
 };

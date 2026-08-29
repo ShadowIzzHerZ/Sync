@@ -210,4 +210,5 @@ export default {
   "admin.dashboard.assignment.unassigned": "किसी को नहीं सौंपी गई",
   "admin.dashboard.assignment.you": "आपको सौंपी गई",
   "admin.dashboard.newReport": "एक नई रिपोर्ट मिली।",
+  "admin.nav.citizenView": "नागरिक दृश्य",
 };

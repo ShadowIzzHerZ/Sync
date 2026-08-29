@@ -210,4 +210,5 @@ export default {
   "admin.dashboard.assignment.unassigned": "కేటాయించలేదు",
   "admin.dashboard.assignment.you": "మీకు కేటాయించబడింది",
   "admin.dashboard.newReport": "కొత్త రిపోర్ట్ వచ్చింది.",
+  "admin.nav.citizenView": "పౌర వీక్షణ",
 };

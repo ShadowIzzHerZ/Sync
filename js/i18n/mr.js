@@ -210,4 +210,5 @@ export default {
   "admin.dashboard.assignment.unassigned": "कोणालाही नेमलेली नाही",
   "admin.dashboard.assignment.you": "तुम्हाला नेमून दिलेली",
   "admin.dashboard.newReport": "एक नवीन तक्रार आली आहे.",
+  "admin.nav.citizenView": "नागरिक दृश्य",
 };

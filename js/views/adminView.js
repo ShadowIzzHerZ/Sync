@@ -8,6 +8,7 @@ import {
   subscribeToReportChanges,
 } from "../api.js";
 import { reverseGeocodeCoarse } from "../geocode.js";
+import { openReportModal } from "./reportModal.js";
 import { showToast } from "../toast.js";
 import { signOut } from "../auth.js";
 import { navigate } from "../router.js";
@@ -33,6 +34,7 @@ export function renderAdminShell(contentHtml) {
         </div>
         <div class="admin-topbar__user">
           ${renderLanguageSwitcher()}
+          <a href="#/map" class="btn btn--ghost btn--small">${t("admin.nav.citizenView")}</a>
           <button class="btn btn--ghost btn--small" id="admin-coverage-btn">
             ${hasCoverage ? t("admin.coverage.update") : t("admin.coverage.set")}
           </button>
@@ -95,9 +97,12 @@ function setMyCoverageLocation(root) {
 export function renderAdminDashboard() {
   return `
     <div class="page" data-animate>
-      <div class="page__header">
-        <h1>${t("admin.dashboard.title")}</h1>
-        <p class="page__subtitle">${t("admin.dashboard.subtitle")}</p>
+      <div class="page__header page__header--with-action">
+        <div>
+          <h1>${t("admin.dashboard.title")}</h1>
+          <p class="page__subtitle">${t("admin.dashboard.subtitle")}</p>
+        </div>
+        <button class="btn btn--primary" id="admin-new-report-btn">${t("map.newReport")}</button>
       </div>
 
       <div class="admin-tabs" role="tablist">
@@ -191,6 +196,22 @@ export async function wireAdminDashboard(root) {
   statusFilter.addEventListener("change", applyFilters);
   categoryFilter.addEventListener("change", applyFilters);
   assignmentFilter.addEventListener("change", applyFilters);
+
+  // Staff/admin can see and do everything a citizen can — the admin portal
+  // is an additional view on the same data, not a replacement for it. This
+  // opens the exact same modal the citizen map uses; it needs a starting
+  // pin position but has no live map on screen to read one from the way
+  // mapView.js does, so it starts from the staff member's own coverage
+  // point (if they've set one) and lets the modal's own geolocation request
+  // (already built in) correct it from there.
+  root.querySelector("#admin-new-report-btn")?.addEventListener("click", async () => {
+    const start = {
+      lat: state.profile?.coverage_lat ?? 28.6139,
+      lng: state.profile?.coverage_lng ?? 77.209,
+    };
+    const result = await openReportModal(start);
+    if (result?.ticket) loadReports({ silent: true });
+  });
 
   await loadReports();
 
