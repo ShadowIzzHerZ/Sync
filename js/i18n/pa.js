@@ -208,5 +208,6 @@ export default {
   "admin.dashboard.assignment.all": "ਸਾਰੇ",
   "admin.dashboard.assignment.mine": "ਮੈਨੂੰ ਸੌਂਪੀਆਂ ਗਈਆਂ",
   "admin.dashboard.assignment.unassigned": "ਕਿਸੇ ਨੂੰ ਨਹੀਂ ਸੌਂਪੀ ਗਈ",
+  "admin.dashboard.assignment.you": "ਤੁਹਾਨੂੰ ਸੌਂਪੀ ਗਈ",
   "admin.dashboard.newReport": "ਇੱਕ ਨਵੀਂ ਰਿਪੋਰਟ ਮਿਲੀ।",
 };

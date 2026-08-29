@@ -224,5 +224,6 @@ export default {
   "admin.dashboard.assignment.all": "All",
   "admin.dashboard.assignment.mine": "Assigned to me",
   "admin.dashboard.assignment.unassigned": "Unassigned",
+  "admin.dashboard.assignment.you": "Assigned to you",
   "admin.dashboard.newReport": "New report received.",
 };

@@ -208,5 +208,6 @@ export default {
   "admin.dashboard.assignment.all": "அனைத்தும்",
   "admin.dashboard.assignment.mine": "எனக்கு ஒதுக்கப்பட்டது",
   "admin.dashboard.assignment.unassigned": "ஒதுக்கப்படவில்லை",
+  "admin.dashboard.assignment.you": "உங்களுக்கு ஒதுக்கப்பட்டது",
   "admin.dashboard.newReport": "ஒரு புதிய புகார் வந்துள்ளது.",
 };

@@ -208,5 +208,6 @@ export default {
   "admin.dashboard.assignment.all": "सर्व",
   "admin.dashboard.assignment.mine": "मला नेमून दिलेल्या",
   "admin.dashboard.assignment.unassigned": "कोणालाही नेमलेली नाही",
+  "admin.dashboard.assignment.you": "तुम्हाला नेमून दिलेली",
   "admin.dashboard.newReport": "एक नवीन तक्रार आली आहे.",
 };

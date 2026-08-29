@@ -164,8 +164,18 @@ export async function wireAdminDashboard(root) {
       if (assignment === "unassigned" && r.assigned_staff_id) return false;
       return true;
     });
+    // Every report stays visible regardless of who it's assigned to —
+    // "closer" only ever affects *ordering*, never visibility. Reports
+    // assigned to this staff member (i.e. this staff member is nearest)
+    // float to the top, then unassigned ones, then everyone else's —
+    // newest-first within each group.
+    filtered.sort((a, b) => {
+      const priority = (r) => (r.assigned_staff_id === myId ? 0 : r.assigned_staff_id ? 2 : 1);
+      const diff = priority(a) - priority(b);
+      return diff !== 0 ? diff : new Date(b.created_at) - new Date(a.created_at);
+    });
     renderStats(statsEl, allReports);
-    renderGrid(grid, filtered);
+    renderGrid(grid, filtered, myId);
   };
 
   const loadReports = async ({ silent = false } = {}) => {
@@ -243,25 +253,28 @@ function renderStats(el, reports) {
   `;
 }
 
-function renderGrid(grid, reports) {
+function renderGrid(grid, reports, myId) {
   if (!reports.length) {
     grid.innerHTML = `<div class="empty-state"><p>${t("admin.dashboard.empty")}</p></div>`;
     return;
   }
 
   grid.innerHTML = reports
-    .map(
-      (r) => `
-      <article class="admin-report-row" data-animate-item data-report-id="${r.id}">
+    .map((r) => {
+      const isMine = r.assigned_staff_id === myId;
+      const chipClass = isMine ? "assignment-chip--mine" : r.assigned_staff_name ? "" : "assignment-chip--unassigned";
+      const chipLabel = isMine
+        ? t("admin.dashboard.assignment.you")
+        : r.assigned_staff_name || t("admin.dashboard.assignment.unassigned");
+      return `
+      <article class="admin-report-row ${isMine ? "admin-report-row--priority" : ""}" data-animate-item data-report-id="${r.id}">
         <img class="admin-report-row__photo" src="${r.photo_url}" alt="" loading="lazy" />
         <div class="admin-report-row__body">
           <div class="admin-report-row__top">
             <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
             <span class="badge badge--${r.status}">${t(`status.${r.status}`)}</span>
             ${r.severity_label ? `<span class="severity-pill severity-pill--${r.severity_label.toLowerCase()}">${tSeverity(r.severity_label)}</span>` : ""}
-            <span class="assignment-chip ${r.assigned_staff_name ? "" : "assignment-chip--unassigned"}">
-              ${r.assigned_staff_name ? escapeHtml(r.assigned_staff_name) : t("admin.dashboard.assignment.unassigned")}
-            </span>
+            <span class="assignment-chip ${chipClass}">${escapeHtml(chipLabel)}</span>
           </div>
           <p class="admin-report-row__description">${escapeHtml(r.description)}</p>
           <div class="admin-report-row__meta">
@@ -291,8 +304,8 @@ function renderGrid(grid, reports) {
           </div>
         </div>
       </article>
-    `,
-    )
+    `;
+    })
     .join("");
 
   animateListIn(grid);

@@ -1888,3 +1888,16 @@ textarea {
   background: var(--color-surface-sunken);
   color: var(--color-ink-faint);
 }
+
+.assignment-chip--mine {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+/* A report nearest to (assigned to) the signed-in staff member — same
+   card, just a visible priority cue; every report stays in the list
+   either way, this only affects how it's ordered/highlighted. */
+.admin-report-row--priority {
+  border: 1px solid var(--color-accent-soft);
+  box-shadow: 0 0 0 1px var(--color-accent-soft), var(--shadow-sm);
+}

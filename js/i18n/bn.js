@@ -208,5 +208,6 @@ export default {
   "admin.dashboard.assignment.all": "সব",
   "admin.dashboard.assignment.mine": "আমাকে বরাদ্দ করা",
   "admin.dashboard.assignment.unassigned": "বরাদ্দ করা হয়নি",
+  "admin.dashboard.assignment.you": "আপনাকে বরাদ্দ করা হয়েছে",
   "admin.dashboard.newReport": "একটি নতুন রিপোর্ট এসেছে।",
 };

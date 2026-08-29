@@ -208,5 +208,6 @@ export default {
   "admin.dashboard.assignment.all": "అన్నీ",
   "admin.dashboard.assignment.mine": "నాకు కేటాయించినవి",
   "admin.dashboard.assignment.unassigned": "కేటాయించలేదు",
+  "admin.dashboard.assignment.you": "మీకు కేటాయించబడింది",
   "admin.dashboard.newReport": "కొత్త రిపోర్ట్ వచ్చింది.",
 };
