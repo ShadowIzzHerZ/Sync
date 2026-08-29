@@ -2,12 +2,14 @@ import { state, isStaffOrAdmin } from "../state.js";
 import { signOut } from "../auth.js";
 import { navigate } from "../router.js";
 import { countPendingReports, onQueueChange } from "../offlineQueue.js";
+import { t, renderLanguageSwitcher, wireLanguageSwitchers } from "../i18n.js";
 
 export function renderShell(activeRoute, contentHtml) {
   const initials = initialsFor(state.profile);
   const roleBadge = isStaffOrAdmin()
     ? `<span class="role-pill role-pill--${state.profile.role}">${state.profile.role}</span>`
     : "";
+  const adminLink = isStaffOrAdmin() ? `<a href="#/admin" class="nav-link">${t("nav.adminPortal")}</a>` : "";
 
   return `
     <div class="app-shell">
@@ -17,12 +19,14 @@ export function renderShell(activeRoute, contentHtml) {
           <span class="topbar__title">Zen</span>
         </div>
         <nav class="topbar__nav" aria-label="Primary">
-          <a href="#/map" class="nav-link ${activeRoute === "map" ? "nav-link--active" : ""}">Map</a>
-          <a href="#/reports" class="nav-link ${activeRoute === "reports" ? "nav-link--active" : ""}">My reports</a>
-          <a href="#/feedback" class="nav-link ${activeRoute === "feedback" ? "nav-link--active" : ""}">Feedback</a>
+          <a href="#/map" class="nav-link ${activeRoute === "map" ? "nav-link--active" : ""}">${t("nav.map")}</a>
+          <a href="#/reports" class="nav-link ${activeRoute === "reports" ? "nav-link--active" : ""}">${t("nav.reports")}</a>
+          <a href="#/feedback" class="nav-link ${activeRoute === "feedback" ? "nav-link--active" : ""}">${t("nav.feedback")}</a>
+          ${adminLink}
         </nav>
         <div class="topbar__user">
-          <span class="sync-pill" id="offline-pill" hidden>Offline</span>
+          ${renderLanguageSwitcher()}
+          <span class="sync-pill" id="offline-pill" hidden>${t("topbar.offline")}</span>
           <span class="sync-pill sync-pill--pending" id="pending-pill" hidden></span>
           ${roleBadge}
           <button class="user-chip" id="user-menu-btn" aria-haspopup="true" aria-expanded="false">
@@ -31,7 +35,7 @@ export function renderShell(activeRoute, contentHtml) {
           </button>
           <div class="user-menu" id="user-menu" hidden>
             <div class="user-menu__email">${escapeHtml(state.profile?.email || "")}</div>
-            <button class="user-menu__item" id="sign-out-btn">Sign out</button>
+            <button class="user-menu__item" id="sign-out-btn">${t("topbar.signOut")}</button>
           </div>
         </div>
       </header>
@@ -67,6 +71,7 @@ export function wireShell(root) {
     navigate("/");
   });
 
+  wireLanguageSwitchers(root);
   wireSyncIndicators(root);
 }
 
@@ -91,7 +96,7 @@ function wireSyncIndicators(root) {
   const updatePending = async () => {
     const count = await countPendingReports();
     pendingPill.hidden = count === 0;
-    pendingPill.textContent = count === 1 ? "1 report pending sync" : `${count} reports pending sync`;
+    pendingPill.textContent = count === 1 ? t("topbar.pendingOne") : t("topbar.pendingMany", { count });
   };
 
   updateOffline();

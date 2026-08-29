@@ -5,6 +5,7 @@ import {
   pulseIcon,
   withTimeout,
 } from "./animations.js";
+import { t } from "./i18n.js";
 
 /**
  * A small in-app replacement for window.confirm() — native confirm() looks
@@ -13,7 +14,7 @@ import {
  * (deleting a report) go through this instead.
  * @returns {Promise<boolean>}
  */
-export function confirmDialog({ title = "Are you sure?", message, confirmLabel = "Confirm", danger = false } = {}) {
+export function confirmDialog({ title = t("confirm.defaultTitle"), message, confirmLabel = t("confirm.defaultConfirm"), danger = false } = {}) {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
@@ -29,7 +30,7 @@ export function confirmDialog({ title = "Are you sure?", message, confirmLabel =
           <h2 id="confirm-title" data-confirm-part>${title}</h2>
           <p class="confirm-message" data-confirm-part>${message}</p>
           <div class="modal-footer" data-confirm-part>
-            <button type="button" class="btn btn--ghost" id="confirm-cancel">Cancel</button>
+            <button type="button" class="btn btn--ghost" id="confirm-cancel">${t("confirm.cancel")}</button>
             <button type="button" class="btn ${danger ? "btn--primary btn--danger-solid" : "btn--primary"}" id="confirm-ok">${confirmLabel}</button>
           </div>
         </div>

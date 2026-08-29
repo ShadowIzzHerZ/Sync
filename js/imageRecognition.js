@@ -27,20 +27,38 @@ function loadModel() {
   return modelPromise;
 }
 
-// ImageNet label keywords -> our category slugs.
+// ImageNet-1000 label keywords -> our category slugs.
+//
+// This list was previously wrong in a way that mattered: several keywords
+// here ("pothole", "crack", "dumpster", "streetlight", "sewer", "puddle",
+// "pipe", "drain") do not appear in any of MobileNet's real 1000 ImageNet
+// class labels, so they could never match anything the classifier actually
+// outputs — dead code masquerading as a signal. Corrected below to keywords
+// that are genuinely substrings of real class labels.
+//
+// Bigger honest caveat, unchanged from before: no ImageNet class means
+// "pothole" or "road crack" — it's not that class of dataset. "manhole
+// cover" is the closest real class and the only classifier-based signal for
+// this category; the actual pothole detector is estimateSeverity() below
+// (the dark-void/roughness heuristic), not this keyword match. See
+// classifyImage()'s use of both together.
 const KEYWORD_TO_CATEGORY = [
-  { slug: "pothole", keywords: ["manhole cover", "pothole", "crack"] },
+  { slug: "pothole", keywords: ["manhole cover"] },
   {
+    // tfjs-models/mobilenet returns the full comma-joined synonym string as
+    // className (e.g. "ashcan, trash can, garbage can, wastebin, ash bin,
+    // ash-bin, ashbin, dustbin, trash barrel, trash bin"), so matching on
+    // any one real synonym is enough.
     slug: "garbage",
-    keywords: ["ashcan", "trash", "garbage", "bin", "dumpster", "waste"],
+    keywords: ["ashcan", "trash", "garbage", "wastebin", "dustbin"],
   },
   {
     slug: "streetlight",
-    keywords: ["street sign", "traffic light", "lamp", "pole", "streetlight"],
+    keywords: ["street sign", "traffic light", "parking meter", "mailbox"],
   },
   {
     slug: "water",
-    keywords: ["fountain", "drain", "sewer", "puddle", "hydrant", "pipe"],
+    keywords: ["fountain", "fire hydrant", "hydrant"],
   },
 ];
 
@@ -53,12 +71,37 @@ function mapPredictionToCategory(predictions) {
       }
     }
   }
+
+  // No class-label match — say so honestly rather than guessing a category
+  // ImageNet has no real signal for. `resolveCategorySuggestion()` below is
+  // what actually combines this with the severity heuristic to make a
+  // pothole-specific nudge, once both signals are available.
   const top = predictions[0];
   return {
     slug: "other",
     label: top?.className ?? "unknown",
     confidence: top?.probability ?? 0,
   };
+}
+
+/**
+ * Combines the classifier's suggestion with the severity heuristic to make
+ * a better-informed category nudge — specifically for the case the
+ * classifier structurally can't help with (no ImageNet class means
+ * "pothole"). If the classifier came back unmatched/low-confidence *and*
+ * the severity heuristic saw a large dark void (its proxy for a deep hole),
+ * that combination is a reasonable, explainable nudge toward "pothole" —
+ * still just a suggestion the citizen can change, not a claim of certainty.
+ * @param {{slug:string, label:string, confidence:number}} classification
+ * @param {{level:1|2|3}} [severity]
+ */
+export function resolveCategorySuggestion(classification, severity) {
+  const isUnmatched = classification.slug === "other";
+  const isLowConfidence = classification.confidence < 0.25;
+  if (isUnmatched && isLowConfidence && severity?.level === 3) {
+    return { ...classification, slug: "pothole", nudgedBySeverity: true };
+  }
+  return classification;
 }
 
 /**
