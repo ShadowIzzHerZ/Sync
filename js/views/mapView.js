@@ -124,7 +124,7 @@ function renderList(listEl, reports) {
   listEl.innerHTML = reports
     .map(
       (r) => `
-      <article class="report-card" data-animate-item data-report-id="${r.id}" tabindex="0">
+      <article class="report-card" data-animate-item data-report-id="${r.id}" tabindex="0" role="button" aria-label="Show ${escapeHtml(r.category?.name || "Uncategorized")} report on the map">
         <img class="report-card__photo" src="${r.photo_url}" alt="" loading="lazy" />
         <div class="report-card__body">
           <div class="report-card__top">
@@ -150,6 +150,16 @@ function renderList(listEl, reports) {
   listEl.querySelectorAll(".report-card").forEach((card) => {
     card.addEventListener("click", (e) => {
       if (e.target.closest("select, button")) return;
+      focusReportOnMap(card.dataset.reportId);
+    });
+    // The card carries tabindex="0" + role="button" so it's focusable, but
+    // that alone doesn't make Enter/Space activate it the way a native
+    // <button> would — without this, keyboard and switch-control users can
+    // tab to a card and never actually open it.
+    card.addEventListener("keydown", (e) => {
+      if (e.target.closest("select, button")) return;
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
       focusReportOnMap(card.dataset.reportId);
     });
   });

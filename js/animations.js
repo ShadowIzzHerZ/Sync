@@ -11,7 +11,35 @@
 //   - Multi-step sequences use anime.timeline() rather than chained
 //     setTimeouts, so they stay scrubbable/cancelable as a unit.
 // ---------------------------------------------------------------------------
-import anime from "https://esm.sh/animejs@3.2.2";
+import animeLib from "https://esm.sh/animejs@3.2.2";
+
+// HIG accessibility guidance: motion should be optional, and apps that
+// respond to the system's Reduce Motion setting should cut automatic,
+// repetitive animation rather than requiring people to sit through it.
+// Every animation in this file goes through anime()/anime.timeline() below
+// instead of the library directly, so this one check governs the whole
+// app — call sites don't need to know or care about it.
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+function anime(params) {
+  if (prefersReducedMotion()) {
+    params = { ...params, duration: 1, delay: 0, loop: false };
+  }
+  return animeLib(params);
+}
+anime.set = animeLib.set;
+anime.stagger = animeLib.stagger;
+anime.timeline = (params = {}) => {
+  const reduce = prefersReducedMotion();
+  const tl = animeLib.timeline(params);
+  if (reduce) {
+    const originalAdd = tl.add.bind(tl);
+    tl.add = (p, offset) => originalAdd({ ...p, duration: 1, delay: 0 }, offset);
+  }
+  return tl;
+};
 
 /**
  * Races a promise against a timeout. Anime.js's animations resolve via

@@ -11,7 +11,7 @@
      or a municipal notice than a dashboard. */
   --color-ink: #201c16;
   --color-ink-soft: #5b5348;
-  --color-ink-faint: #948b7c;
+  --color-ink-faint: #766e5e;
 
   --color-bg: #f6f3ec;
   --color-surface: #fffdf9;
@@ -332,6 +332,18 @@ textarea {
   outline-offset: 2px;
 }
 
+/* Shared keyboard-focus ring for everything else that's interactive but
+   isn't a .btn — links styled as tabs/nav items, and the report card,
+   which is custom (role="button") rather than a native element. */
+.nav-link:focus-visible,
+.auth-tab:focus-visible,
+.user-chip:focus-visible,
+.star:focus-visible,
+.report-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .btn--primary {
   background: var(--color-accent);
   color: #fff;
@@ -379,8 +391,8 @@ textarea {
 }
 
 .icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: none;
@@ -391,6 +403,11 @@ textarea {
 
 .icon-btn:hover {
   background: var(--color-surface-sunken);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
 }
 
 .field {
@@ -1257,7 +1274,8 @@ textarea {
   color: var(--color-border-strong);
   cursor: pointer;
   line-height: 1;
-  padding: 2px;
+  padding: 8px;
+  margin: -6px;
 }
 
 .star--active {
