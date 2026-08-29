@@ -11,7 +11,7 @@
 // changes, so returning visitors pick up the new file set instead of a
 // stale one.
 // ---------------------------------------------------------------------------
-const SHELL_CACHE = "zen-shell-v3";
+const SHELL_CACHE = "zen-shell-v4";
 const RUNTIME_CACHE = "zen-runtime-v1";
 
 const APP_SHELL = [
