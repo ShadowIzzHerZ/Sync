@@ -199,4 +199,14 @@ export default {
   "admin.feedback.loadFailed": "प्रतिक्रिया लोड नहीं हो सकी।",
   "admin.feedback.empty": "अभी तक कोई प्रतिक्रिया नहीं है।",
   "admin.feedback.anonymous": "अज्ञात",
+
+  "admin.coverage.set": "अपना कवरेज क्षेत्र सेट करें",
+  "admin.coverage.update": "कवरेज क्षेत्र अपडेट करें",
+  "admin.coverage.locating": "लोकेशन ढूंढी जा रही है…",
+  "admin.coverage.saved": "कवरेज क्षेत्र सेव हो गया — नई नज़दीकी रिपोर्ट आपको भेजी जा सकती हैं।",
+  "admin.coverage.failed": "आपका कवरेज क्षेत्र सेव नहीं हो सका।",
+  "admin.dashboard.assignment.all": "सभी",
+  "admin.dashboard.assignment.mine": "मुझे सौंपी गई",
+  "admin.dashboard.assignment.unassigned": "किसी को नहीं सौंपी गई",
+  "admin.dashboard.newReport": "एक नई रिपोर्ट मिली।",
 };

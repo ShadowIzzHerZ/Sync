@@ -9,7 +9,7 @@ export async function loadProfile(userId) {
   for (let attempt = 0; attempt < 5; attempt++) {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, role, display_name, created_at")
+      .select("id, email, role, display_name, created_at, coverage_lat, coverage_lng")
       .eq("id", userId)
       .maybeSingle();
 

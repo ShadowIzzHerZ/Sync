@@ -1,5 +1,12 @@
 import { state, setState } from "../state.js";
-import { fetchReports, updateReportStatus, updateReportEta, fetchFeedback } from "../api.js";
+import {
+  fetchReports,
+  updateReportStatus,
+  updateReportEta,
+  fetchFeedback,
+  updateMyCoverageLocation,
+  subscribeToReportChanges,
+} from "../api.js";
 import { reverseGeocodeCoarse } from "../geocode.js";
 import { showToast } from "../toast.js";
 import { signOut } from "../auth.js";
@@ -13,6 +20,7 @@ import { t, tSeverity, renderLanguageSwitcher, wireLanguageSwitchers } from "../
 
 export function renderAdminShell(contentHtml) {
   const initials = (state.profile?.display_name || state.profile?.email || "?").trim().slice(0, 1).toUpperCase();
+  const hasCoverage = state.profile?.coverage_lat != null && state.profile?.coverage_lng != null;
   return `
     <div class="admin-shell">
       <header class="admin-topbar" data-animate>
@@ -25,6 +33,9 @@ export function renderAdminShell(contentHtml) {
         </div>
         <div class="admin-topbar__user">
           ${renderLanguageSwitcher()}
+          <button class="btn btn--ghost btn--small" id="admin-coverage-btn">
+            ${hasCoverage ? t("admin.coverage.update") : t("admin.coverage.set")}
+          </button>
           <span class="admin-topbar__who">
             <span class="user-chip__avatar">${initials}</span>
             ${escapeHtml(state.profile?.display_name || state.profile?.email || "")}
@@ -45,6 +56,40 @@ export function wireAdminShell(root) {
     await signOut();
     navigate("/admin/login");
   });
+  root.querySelector("#admin-coverage-btn")?.addEventListener("click", () => setMyCoverageLocation(root));
+}
+
+function setMyCoverageLocation(root) {
+  if (!navigator.geolocation) {
+    showToast(t("report.toast.geoUnavailable"), "error");
+    return;
+  }
+  const btn = root.querySelector("#admin-coverage-btn");
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = t("admin.coverage.locating");
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        const { lat, lng } = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        await updateMyCoverageLocation(state.session.user.id, lat, lng);
+        setState({ profile: { ...state.profile, coverage_lat: lat, coverage_lng: lng } });
+        showToast(t("admin.coverage.saved"), "success");
+        btn.textContent = t("admin.coverage.update");
+      } catch (err) {
+        showToast(err.message || t("admin.coverage.failed"), "error");
+        btn.textContent = originalLabel;
+      } finally {
+        btn.disabled = false;
+      }
+    },
+    () => {
+      showToast(t("admin.coverage.failed"), "error");
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    },
+    { enableHighAccuracy: true, timeout: 8000 },
+  );
 }
 
 export function renderAdminDashboard() {
@@ -71,6 +116,11 @@ export function renderAdminDashboard() {
             <option value="all">${t("map.filter.allCategories")}</option>
             ${state.categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}
           </select>
+          <select id="admin-filter-assignment">
+            <option value="all">${t("admin.dashboard.assignment.all")}</option>
+            <option value="mine">${t("admin.dashboard.assignment.mine")}</option>
+            <option value="unassigned">${t("admin.dashboard.assignment.unassigned")}</option>
+          </select>
         </div>
         <div class="admin-report-grid" id="admin-report-grid"></div>
       </section>
@@ -82,39 +132,66 @@ export function renderAdminDashboard() {
   `;
 }
 
+// Same problem shell.js's wireSyncIndicators solves, for the same reason:
+// the admin dashboard is torn down and rebuilt wholesale on every visit to
+// /admin, which would otherwise leak one more open realtime subscription
+// per visit. Tracking a single cleanup reference and calling it before
+// subscribing again keeps exactly one connection alive at a time.
+let cleanupRealtime = null;
+
 export async function wireAdminDashboard(root) {
   startRelativeTimeTicker();
   wireTabs(root);
+  cleanupRealtime?.();
 
   const grid = root.querySelector("#admin-report-grid");
   const statsEl = root.querySelector("#admin-stats");
   const statusFilter = root.querySelector("#admin-filter-status");
   const categoryFilter = root.querySelector("#admin-filter-category");
+  const assignmentFilter = root.querySelector("#admin-filter-assignment");
 
   let allReports = [];
 
   const applyFilters = () => {
     const status = statusFilter.value;
     const categoryId = categoryFilter.value;
+    const assignment = assignmentFilter.value;
+    const myId = state.session?.user?.id;
     const filtered = allReports.filter((r) => {
       if (status !== "all" && r.status !== status) return false;
       if (categoryId !== "all" && r.category?.id !== categoryId) return false;
+      if (assignment === "mine" && r.assigned_staff_id !== myId) return false;
+      if (assignment === "unassigned" && r.assigned_staff_id) return false;
       return true;
     });
     renderStats(statsEl, allReports);
     renderGrid(grid, filtered);
   };
 
+  const loadReports = async ({ silent = false } = {}) => {
+    try {
+      allReports = await fetchReports();
+      setState({ reports: allReports });
+      applyFilters();
+    } catch (err) {
+      if (!silent) showToast(err.message || t("map.toast.loadFailed"), "error");
+    }
+  };
+
   statusFilter.addEventListener("change", applyFilters);
   categoryFilter.addEventListener("change", applyFilters);
+  assignmentFilter.addEventListener("change", applyFilters);
 
-  try {
-    allReports = await fetchReports();
-    setState({ reports: allReports });
-  } catch (err) {
-    showToast(err.message || t("map.toast.loadFailed"), "error");
-  }
-  applyFilters();
+  await loadReports();
+
+  // Live updates: any insert/update/delete on `reports` (from any staff
+  // member, or a citizen filing a new one) triggers a silent refetch —
+  // reports are RLS-open and city-wide, so there's no per-row filtering to
+  // do here, just "the list might be stale, get the current one."
+  cleanupRealtime = subscribeToReportChanges((eventType) => {
+    if (eventType === "INSERT") showToast(t("admin.dashboard.newReport"), "info");
+    loadReports({ silent: true });
+  });
 
   const feedbackGrid = root.querySelector("#admin-feedback-grid");
   try {
@@ -182,6 +259,9 @@ function renderGrid(grid, reports) {
             <span class="category-chip">${escapeHtml(r.category?.name || "Uncategorized")}</span>
             <span class="badge badge--${r.status}">${t(`status.${r.status}`)}</span>
             ${r.severity_label ? `<span class="severity-pill severity-pill--${r.severity_label.toLowerCase()}">${tSeverity(r.severity_label)}</span>` : ""}
+            <span class="assignment-chip ${r.assigned_staff_name ? "" : "assignment-chip--unassigned"}">
+              ${r.assigned_staff_name ? escapeHtml(r.assigned_staff_name) : t("admin.dashboard.assignment.unassigned")}
+            </span>
           </div>
           <p class="admin-report-row__description">${escapeHtml(r.description)}</p>
           <div class="admin-report-row__meta">

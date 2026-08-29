@@ -199,4 +199,14 @@ export default {
   "admin.feedback.loadFailed": "মতামত লোড করা যায়নি।",
   "admin.feedback.empty": "এখনও কোনো মতামত নেই।",
   "admin.feedback.anonymous": "অজ্ঞাত",
+
+  "admin.coverage.set": "আমার কভারেজ এলাকা সেট করুন",
+  "admin.coverage.update": "কভারেজ এলাকা আপডেট করুন",
+  "admin.coverage.locating": "অবস্থান খোঁজা হচ্ছে…",
+  "admin.coverage.saved": "কভারেজ এলাকা সংরক্ষিত হয়েছে — কাছাকাছি নতুন রিপোর্ট আপনার কাছে যেতে পারে।",
+  "admin.coverage.failed": "আপনার কভারেজ এলাকা সংরক্ষণ করা যায়নি।",
+  "admin.dashboard.assignment.all": "সব",
+  "admin.dashboard.assignment.mine": "আমাকে বরাদ্দ করা",
+  "admin.dashboard.assignment.unassigned": "বরাদ্দ করা হয়নি",
+  "admin.dashboard.newReport": "একটি নতুন রিপোর্ট এসেছে।",
 };

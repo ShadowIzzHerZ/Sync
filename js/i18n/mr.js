@@ -199,4 +199,14 @@ export default {
   "admin.feedback.loadFailed": "अभिप्राय लोड करता आला नाही.",
   "admin.feedback.empty": "अजून कोणताही अभिप्राय नाही.",
   "admin.feedback.anonymous": "अनामिक",
+
+  "admin.coverage.set": "माझा कव्हरेज परिसर सेट करा",
+  "admin.coverage.update": "कव्हरेज परिसर अद्ययावत करा",
+  "admin.coverage.locating": "लोकेशन शोधत आहे…",
+  "admin.coverage.saved": "कव्हरेज परिसर सेव्ह झाला — जवळपासच्या नवीन तक्रारी तुमच्याकडे पाठवल्या जाऊ शकतात.",
+  "admin.coverage.failed": "तुमचा कव्हरेज परिसर सेव्ह करता आला नाही.",
+  "admin.dashboard.assignment.all": "सर्व",
+  "admin.dashboard.assignment.mine": "मला नेमून दिलेल्या",
+  "admin.dashboard.assignment.unassigned": "कोणालाही नेमलेली नाही",
+  "admin.dashboard.newReport": "एक नवीन तक्रार आली आहे.",
 };

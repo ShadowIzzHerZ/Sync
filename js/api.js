@@ -3,6 +3,7 @@ import { supabase, REPORT_PHOTO_BUCKET } from "./config.js";
 const TICKET_COLUMNS = `id, description, photo_url, lat, lng, status, ai_label, ai_confidence,
    severity, severity_label, cluster_id, duplicate_count, confirmation_count,
    reporter_id, reporter_display_name, created_at, eta_status, eta_updated_at,
+   assigned_staff_id, assigned_staff_name,
    category:categories ( id, name, slug, icon )`;
 
 export async function fetchCategories() {
@@ -164,6 +165,41 @@ export async function submitFeedback({ userId, message, rating }) {
     .from("feedback")
     .insert({ user_id: userId, message, rating: rating ?? null });
   if (error) throw error;
+}
+
+/**
+ * Sets/clears a staff member's own "coverage point" — the location new
+ * reports auto-route toward by nearest distance (assign_nearest_staff() DB
+ * trigger). Pass lat/lng as null to opt this account out of auto-assignment.
+ */
+export async function updateMyCoverageLocation(userId, lat, lng) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ coverage_lat: lat, coverage_lng: lng })
+    .eq("id", userId)
+    .select("id, coverage_lat, coverage_lng")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Live updates for the admin dashboard: fires `onChange(eventType)` — one of
+ * "INSERT"/"UPDATE"/"DELETE" — whenever any row in `reports` changes.
+ * Callers refetch rather than trying to patch the payload in by hand (the
+ * payload is the raw `reports` row, not the report_tickets/category-joined
+ * shape the dashboard actually renders). Returns an unsubscribe function.
+ * Requires `reports` to be in the `supabase_realtime` publication (already
+ * done via migration).
+ */
+export function subscribeToReportChanges(onChange) {
+  const channel = supabase
+    .channel("admin-reports-changes")
+    .on("postgres_changes", { event: "*", schema: "public", table: "reports" }, (payload) =>
+      onChange(payload.eventType),
+    )
+    .subscribe();
+  return () => supabase.removeChannel(channel);
 }
 
 /** Staff/admin-only (RLS-enforced via feedback_select_own_or_staff): every citizen's feedback, newest first. */

@@ -1872,3 +1872,19 @@ textarea {
   color: var(--color-ink-soft);
   line-height: 1.5;
 }
+
+/* ---------- Nearest-staff assignment ---------- */
+
+.assignment-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.assignment-chip--unassigned {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink-faint);
+}

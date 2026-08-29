@@ -199,4 +199,14 @@ export default {
   "admin.feedback.loadFailed": "கருத்துகளை ஏற்ற முடியவில்லை.",
   "admin.feedback.empty": "இதுவரை கருத்துகள் இல்லை.",
   "admin.feedback.anonymous": "அநாமதேயர்",
+
+  "admin.coverage.set": "எனது பணி பரப்பை அமைக்கவும்",
+  "admin.coverage.update": "பணி பரப்பை புதுப்பிக்கவும்",
+  "admin.coverage.locating": "இருப்பிடம் கண்டறியப்படுகிறது…",
+  "admin.coverage.saved": "பணி பரப்பு சேமிக்கப்பட்டது — அருகிலுள்ள புதிய புகார்கள் உங்களுக்கு வழிநடத்தப்படலாம்.",
+  "admin.coverage.failed": "உங்கள் பணி பரப்பை சேமிக்க முடியவில்லை.",
+  "admin.dashboard.assignment.all": "அனைத்தும்",
+  "admin.dashboard.assignment.mine": "எனக்கு ஒதுக்கப்பட்டது",
+  "admin.dashboard.assignment.unassigned": "ஒதுக்கப்படவில்லை",
+  "admin.dashboard.newReport": "ஒரு புதிய புகார் வந்துள்ளது.",
 };

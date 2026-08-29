@@ -199,4 +199,14 @@ export default {
 
   "main.toast.queuedSynced": "ਕਤਾਰ ਵਿੱਚ ਮੌਜੂਦ ਇੱਕ ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਵਕ ਸਿੰਕ ਹੋ ਗਈ।",
   "main.toast.queuedSyncFailed": "ਕਤਾਰ ਵਿੱਚ ਮੌਜੂਦ ਰਿਪੋਰਟ ਅਜੇ ਸਿੰਕ ਨਹੀਂ ਹੋ ਸਕੀ:",
+
+  "admin.coverage.set": "ਮੇਰਾ ਕਵਰੇਜ ਖੇਤਰ ਸੈੱਟ ਕਰੋ",
+  "admin.coverage.update": "ਕਵਰੇਜ ਖੇਤਰ ਅੱਪਡੇਟ ਕਰੋ",
+  "admin.coverage.locating": "ਲੋਕੇਸ਼ਨ ਲੱਭੀ ਜਾ ਰਹੀ ਹੈ…",
+  "admin.coverage.saved": "ਕਵਰੇਜ ਖੇਤਰ ਸੇਵ ਹੋ ਗਿਆ — ਨੇੜਲੀਆਂ ਨਵੀਆਂ ਰਿਪੋਰਟਾਂ ਤੁਹਾਨੂੰ ਭੇਜੀਆਂ ਜਾ ਸਕਦੀਆਂ ਹਨ।",
+  "admin.coverage.failed": "ਤੁਹਾਡਾ ਕਵਰੇਜ ਖੇਤਰ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਿਆ।",
+  "admin.dashboard.assignment.all": "ਸਾਰੇ",
+  "admin.dashboard.assignment.mine": "ਮੈਨੂੰ ਸੌਂਪੀਆਂ ਗਈਆਂ",
+  "admin.dashboard.assignment.unassigned": "ਕਿਸੇ ਨੂੰ ਨਹੀਂ ਸੌਂਪੀ ਗਈ",
+  "admin.dashboard.newReport": "ਇੱਕ ਨਵੀਂ ਰਿਪੋਰਟ ਮਿਲੀ।",
 };

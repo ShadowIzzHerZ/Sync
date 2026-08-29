@@ -215,4 +215,14 @@ export default {
   "admin.feedback.loadFailed": "Couldn't load feedback.",
   "admin.feedback.empty": "No feedback yet.",
   "admin.feedback.anonymous": "Anonymous",
+
+  "admin.coverage.set": "Set my coverage area",
+  "admin.coverage.update": "Update coverage area",
+  "admin.coverage.locating": "Locating…",
+  "admin.coverage.saved": "Coverage area saved — new nearby reports may route to you.",
+  "admin.coverage.failed": "Couldn't save your coverage area.",
+  "admin.dashboard.assignment.all": "All",
+  "admin.dashboard.assignment.mine": "Assigned to me",
+  "admin.dashboard.assignment.unassigned": "Unassigned",
+  "admin.dashboard.newReport": "New report received.",
 };

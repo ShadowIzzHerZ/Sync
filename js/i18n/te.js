@@ -199,4 +199,14 @@ export default {
   "admin.feedback.loadFailed": "అభిప్రాయాన్ని లోడ్ చేయలేకపోయింది.",
   "admin.feedback.empty": "ఇంకా అభిప్రాయం లేదు.",
   "admin.feedback.anonymous": "అనామకుడు",
+
+  "admin.coverage.set": "నా కవరేజ్ ప్రాంతాన్ని సెట్ చేయండి",
+  "admin.coverage.update": "కవరేజ్ ప్రాంతాన్ని అప్‌డేట్ చేయండి",
+  "admin.coverage.locating": "లొకేషన్ కనుగొనబడుతోంది…",
+  "admin.coverage.saved": "కవరేజ్ ప్రాంతం సేవ్ చేయబడింది — సమీపంలోని కొత్త రిపోర్టులు మీకు రూట్ కావచ్చు.",
+  "admin.coverage.failed": "మీ కవరేజ్ ప్రాంతాన్ని సేవ్ చేయలేకపోయింది.",
+  "admin.dashboard.assignment.all": "అన్నీ",
+  "admin.dashboard.assignment.mine": "నాకు కేటాయించినవి",
+  "admin.dashboard.assignment.unassigned": "కేటాయించలేదు",
+  "admin.dashboard.newReport": "కొత్త రిపోర్ట్ వచ్చింది.",
 };
